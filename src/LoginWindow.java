@@ -37,7 +37,6 @@ public class LoginWindow extends JFrame {
 
     // Fields
     private User user;
-    // private String username = "";
 
     /**
      * Default frame constructor
@@ -84,7 +83,6 @@ public class LoginWindow extends JFrame {
                 if (login()) {
                     dispose();
                     user.createChatWindow(user);
-                    //new ChatWindow(user);
                 } else {
                     JOptionPane.showMessageDialog(null, "Please enter a different username", "Username Invalid",
                             JOptionPane.WARNING_MESSAGE);
@@ -100,15 +98,6 @@ public class LoginWindow extends JFrame {
     }
 
     /**
-     * Get the username used to login
-     */
-    /*
-     * public String getUsername() {
-     * return this.username;
-     * }
-     */
-
-    /**
      * Attempt to login the user by setting the username
      */
     private boolean login() {
@@ -119,8 +108,7 @@ public class LoginWindow extends JFrame {
         lblJoinText.setHorizontalAlignment(SwingConstants.CENTER); // Centre the joining text
         lblJoinText.setText("Joining...");
 
-        // Make user and check if username is valid
-
+        // Check if username is valid
         if (user.validUsername()) {
             return true;
         } else {
@@ -135,20 +123,4 @@ public class LoginWindow extends JFrame {
             return false;
         }
     }
-
-    /*
-     * /**
-     * Checks if text supplied as argument is a valid username
-     * 
-     * @param String: Username supplied to check if valid
-     *
-     * private boolean validUsername(String username) {
-     * // : This logic should change when server implemented
-     * if (username.length() != 0) {
-     * return true;
-     * } else {
-     * return false;
-     * }
-     * }
-     */
 }
