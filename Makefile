@@ -19,8 +19,13 @@ docs:
 cleanDocs:
 	@rm -r doc
 
-startServer: build
+server: $(SRC)/Server.java
+	$(JC) $(JFLAGS) $?
 	java -cp $(BIN) Server
+
+serverPort: $(SRC)/Server.java
+	$(JC) $(JFLAGS) $?
+	java -cp $(BIN) Server $(PORT)
 
 request: build
 	java -cp $(BIN) StartClient
