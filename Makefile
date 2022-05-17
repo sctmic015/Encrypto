@@ -19,17 +19,16 @@ docs:
 cleanDocs:
 	@rm -r doc
 
-server: $(SRC)/Server.java
+server: $(SRC)/Server.java $(SRC)/ServerThread.java
 	$(JC) $(JFLAGS) $?
 	java -cp $(BIN) Server
 
-serverPort: $(SRC)/Server.java
+serverPort: $(SRC)/Server.java $(SRC)/ServerThread.java
 	$(JC) $(JFLAGS) $?
 	java -cp $(BIN) Server $(PORT)
 
 user: build
 	java -cp $(BIN) User
 
-gui: $(SRC)/GUITest.java $(SRC)/LoginWindow.java $(SRC)/ChatWindow.java
-	$(JC) $(JFLAGS) $?
-	java -cp $(BIN) GUITest
+userPort: build
+	java -cp $(BIN) User $(PORT)

@@ -27,7 +27,7 @@ public class Server {
      * Attempts to add a username to the server if it's available.
      * The method returns whether a user was successfully added.
      */
-    public boolean addUser(String username) {
+    public synchronized boolean addUser(String username) {
         if (!usernames.contains(username)) {
             usernames.add(username);
             return true;
@@ -46,10 +46,20 @@ public class Server {
             // Accept client connections and serve forever
             while (true) {
                 Socket socket = ss.accept();
+
+                ServerThread serverThread = new ServerThread(socket, this);
+                serverThread.start();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Allows outputing messages to console for server logging
+     */
+    public void inform(String message){
+        System.out.println(message);
     }
 
     public static void main(String[] args) {

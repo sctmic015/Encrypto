@@ -4,4 +4,7 @@
 
 ## Getting started
 
-Use Makefile for running and branch for development work. Only `make gui` is functional to test the GUI implementation.
+Use Makefile for running, and use branch for development work. 
+
+Use `make server` to begin server.
+Use `make user` to create a user and its supplied GUI.
