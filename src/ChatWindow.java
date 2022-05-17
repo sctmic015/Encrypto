@@ -35,9 +35,9 @@ public class ChatWindow extends JFrame {
 
     // Components
     private ImageIcon imgIcon = new ImageIcon(PATH_TO_IMAGE);
-    private JButton btnDisconnect = new JButton("Disconnect");
-    private JButton btnStartRoom = new JButton("Start Room");
-    private JButton btnJoinRoom = new JButton("Join Room");
+    private JButton btnLogout = new JButton("Logout");
+    private JButton btnStartRoom = new JButton("Start");
+    private JButton btnJoinRoom = new JButton("Join");
     private JTable tblConnectedUsers;
     private JPanel pnlHeader;
     private JPanel pnlPersonalUsername;
@@ -48,8 +48,9 @@ public class ChatWindow extends JFrame {
     private JPanel pnlChatHistory;
     private JPanel pnlTypeAndSendMessage;
     private JLabel lblLogoImage = new JLabel(
-            new ImageIcon(imgIcon.getImage().getScaledInstance(670, 448, Image.SCALE_DEFAULT)));
-    private JLabel lblWelcomeText = new JLabel("Welcome! Please click on a room to join or start your own room...");
+            new ImageIcon(imgIcon.getImage().getScaledInstance(610, 435, Image.SCALE_DEFAULT)));
+    private JLabel lblWelcomeText = new JLabel(
+            "Welcome! Please click on 'Start' to start your own room or 'Join' to join a room...");
     private JLabel lblPersonalUsername;
     private JLabel lblChattingToUsername;
     private JTextArea txtareaChatHistory;
@@ -100,9 +101,9 @@ public class ChatWindow extends JFrame {
 
         // Set up panels
         pnlConnectedUsers = new JPanel();
-        pnlConnectedUsers.setPreferredSize(new Dimension(120, 460));
+        pnlConnectedUsers.setPreferredSize(new Dimension(180, 485));
         pnlRoomButtons = new JPanel();
-        pnlRoomButtons.setPreferredSize(new Dimension(120, 100));
+        pnlRoomButtons.setPreferredSize(new Dimension(180, 75));
         pnlHeader = new JPanel();
         pnlHeader.setPreferredSize(new Dimension(800, 40));
         pnlPersonalUsername = new JPanel();
@@ -120,8 +121,8 @@ public class ChatWindow extends JFrame {
         pnlConnectedUsers.add(pnlRoomButtons, BorderLayout.SOUTH);
 
         // **** FAKE TABLE SETUP *****
-        String[] colName = { "Rooms:" };
-        Object[][] connectedUsers = { { "2" }, { "32" }, { "123" } };
+        String[] colName = { "Talking To:" };
+        Object[][] connectedUsers = { { "James" }, { "Sally" }, { "Brian" } };
 
         // Create table without editing permissions
         tblConnectedUsers = new JTable(connectedUsers, colName) {
@@ -133,7 +134,7 @@ public class ChatWindow extends JFrame {
                 return false;
             }
         };
-        tblConnectedUsers.setCellSelectionEnabled(true);
+        tblConnectedUsers.setCellSelectionEnabled(false);
 
         // Add mouse event to get selected user from table
         tblConnectedUsers.addMouseListener(new MouseAdapter() {
@@ -171,7 +172,7 @@ public class ChatWindow extends JFrame {
         // Buttons for starting/joining a room and logging out
         pnlRoomButtons.add(btnStartRoom);
         pnlRoomButtons.add(btnJoinRoom);
-        pnlRoomButtons.add(btnDisconnect);
+        pnlRoomButtons.add(btnLogout);
 
         // Start room functionality
         btnStartRoom.addActionListener(new ActionListener() {
@@ -198,10 +199,10 @@ public class ChatWindow extends JFrame {
         });
 
         // Disconnect button functionality
-        btnDisconnect.addActionListener(new ActionListener() {
+        btnLogout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == btnDisconnect) {
+                if (e.getSource() == btnLogout) {
                     dispose();
                     // TODO: SEND DISCONNECTED MESSAGE TO SERVER
                     new LoginWindow();
@@ -216,12 +217,12 @@ public class ChatWindow extends JFrame {
         lblPersonalUsername = new JLabel(personalUsername);
         lblPersonalUsername.setFont(new Font("", Font.BOLD, 15));
         lblPersonalUsername.setHorizontalAlignment(SwingConstants.CENTER);
-        pnlPersonalUsername.setBounds(0, 0, 120, 40);
+        pnlPersonalUsername.setBounds(0, 0, 180, 40);
         pnlPersonalUsername.setBackground(new Color(0x21827e));
         lblChattingToUsername = new JLabel(chosenChatName); // Default header is not to a user
         lblChattingToUsername.setFont(new Font("", Font.BOLD, 14));
         lblChattingToUsername.setHorizontalAlignment(SwingConstants.CENTER);
-        pnlChattingToUsername.setBounds(120, 0, 680, 40);
+        pnlChattingToUsername.setBounds(180, 0, 620, 40);
         pnlChattingToUsername.setBackground(new Color(0x7F7F7F));
         pnlPersonalUsername.add(lblPersonalUsername, BorderLayout.CENTER);
         pnlChattingToUsername.add(lblChattingToUsername, BorderLayout.CENTER);
@@ -250,7 +251,7 @@ public class ChatWindow extends JFrame {
             pnlChatArea.setLayout(new BorderLayout());
 
             // Add chat history box
-            txtareaChatHistory = new JTextArea(30, 54);
+            txtareaChatHistory = new JTextArea(30, 48);
             txtareaChatHistory.setLineWrap(true);
             txtareaChatHistory.setEditable(false);
             txtareaChatHistory.setAutoscrolls(true);
@@ -260,7 +261,7 @@ public class ChatWindow extends JFrame {
 
             // Add message typing and sending area
             txtMessage = new JTextField(hint);
-            txtMessage.setColumns(48);
+            txtMessage.setColumns(42);
 
             // Give text message input area hint functionality
             txtMessage.addFocusListener(new FocusAdapter() {

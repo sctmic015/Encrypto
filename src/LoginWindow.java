@@ -134,7 +134,7 @@ public class LoginWindow extends JFrame {
      */
     private boolean validUsername(String username) {
         // TODO: This logic should change when server implemented
-        if (username.equals("admin")) {
+        if (username.length() != 0) {
             return true;
         } else {
             return false;
