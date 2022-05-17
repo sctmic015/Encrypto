@@ -5,11 +5,14 @@ import java.io.*;
 
 /**
  * Server for communication to Encrypto clients
+ * 
+ * @author Bradley Culligan, CLLBRA005
+ * @version May 2022
  */
 
 public class Server {
     private int port;
-    // Store a set of connected usernames and rooms for the server to track
+    // Store a set of unique connected usernames and rooms for the server to track
     private Set<String> usernames = new HashSet<>();
     // private Set<Room> rooms = new HashSet<>();
 
@@ -35,7 +38,7 @@ public class Server {
     /**
      * Starts server listening for connections
      */
-    public void beginServer() {
+    private void beginServer() {
         try (ServerSocket ss = new ServerSocket(port)) {
             // Inform console that server successfully started
             System.out.println("Encrypto server started on port: " + port);

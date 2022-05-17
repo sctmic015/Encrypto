@@ -36,12 +36,13 @@ public class LoginWindow extends JFrame {
     private JTextField txtJoinName;
 
     // Fields
-    private String username = "";
+    private User user;
+    // private String username = "";
 
     /**
      * Default frame constructor
      */
-    public LoginWindow() {
+    public LoginWindow(User user) {
         // Standard requirements to make and format login window
         super("Encrypto");
         setSize(WIDTH, HEIGHT);
@@ -49,6 +50,9 @@ public class LoginWindow extends JFrame {
         setResizable(false); // Prefer to have a default window size to avoid moving components unnecessarily
         setLocationRelativeTo(null); // Center the window
         setLayout(new FlowLayout());
+
+        // Store the user that created the login window
+        this.user = user;
 
         // Create and set image icone for personalisation
         setIconImage(imgIcon.getImage());
@@ -61,7 +65,7 @@ public class LoginWindow extends JFrame {
         pnlBottomBar = new JPanel();
         btnJoinNetwork = new JButton("Login");
         lblJoinText = new JLabel("Username: ");
-        txtJoinName = new JTextField(21);
+        txtJoinName = new JTextField(18);
         pnlBottomBar.add(lblJoinText);
         pnlBottomBar.add(txtJoinName);
         pnlBottomBar.add(btnJoinNetwork);
@@ -75,9 +79,12 @@ public class LoginWindow extends JFrame {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                String username = txtJoinName.getText().trim();
+                user.setUsername(username);
                 if (login()) {
                     dispose();
-                    new ChatWindow(username);
+                    user.createChatWindow(user);
+                    //new ChatWindow(user);
                 } else {
                     JOptionPane.showMessageDialog(null, "Please enter a different username", "Username Invalid",
                             JOptionPane.WARNING_MESSAGE);
@@ -95,24 +102,26 @@ public class LoginWindow extends JFrame {
     /**
      * Get the username used to login
      */
-    public String getUsername() {
-        return this.username;
-    }
+    /*
+     * public String getUsername() {
+     * return this.username;
+     * }
+     */
 
     /**
      * Attempt to login the user by setting the username
      */
     private boolean login() {
         // Prevent further user interaction until login check is complete
-        username = txtJoinName.getText().trim();
         pnlBottomBar.remove(btnJoinNetwork);
         pnlBottomBar.remove(txtJoinName);
         lblJoinText.setPreferredSize(new Dimension(800, 20)); // Set text space to fill width of window
         lblJoinText.setHorizontalAlignment(SwingConstants.CENTER); // Centre the joining text
         lblJoinText.setText("Joining...");
 
-        // Check if username is valid
-        if (validUsername(this.username)) {
+        // Make user and check if username is valid
+
+        if (user.validUsername()) {
             return true;
         } else {
             // Re-add all the components back to their previous condition
@@ -127,17 +136,19 @@ public class LoginWindow extends JFrame {
         }
     }
 
-    /**
+    /*
+     * /**
      * Checks if text supplied as argument is a valid username
      * 
      * @param String: Username supplied to check if valid
+     *
+     * private boolean validUsername(String username) {
+     * // : This logic should change when server implemented
+     * if (username.length() != 0) {
+     * return true;
+     * } else {
+     * return false;
+     * }
+     * }
      */
-    private boolean validUsername(String username) {
-        // TODO: This logic should change when server implemented
-        if (username.length() != 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

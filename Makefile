@@ -27,8 +27,8 @@ serverPort: $(SRC)/Server.java
 	$(JC) $(JFLAGS) $?
 	java -cp $(BIN) Server $(PORT)
 
-request: build
-	java -cp $(BIN) StartClient
+user: build
+	java -cp $(BIN) User
 
 gui: $(SRC)/GUITest.java $(SRC)/LoginWindow.java $(SRC)/ChatWindow.java
 	$(JC) $(JFLAGS) $?

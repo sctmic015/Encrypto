@@ -62,11 +62,12 @@ public class ChatWindow extends JFrame {
     private String personalUsername;
     private String hint = "Type a message...";
     private boolean splashOpen = true;
+    private User user;
 
     /**
      * Default frame constructor
      */
-    public ChatWindow(String username) {
+    public ChatWindow(User user) {
         // Standard requirements to make and format chat window
         super("Encrypto");
         setSize(WIDTH, HEIGHT);
@@ -75,8 +76,8 @@ public class ChatWindow extends JFrame {
         setLocationRelativeTo(null); // Center the window
         setLayout(new BorderLayout());
 
-        // Set connected user's username
-        this.personalUsername = username;
+        // Store the user
+        this.user = user;
 
         // Create and set image icone for personalisation
         setIconImage(imgIcon.getImage());
@@ -90,10 +91,9 @@ public class ChatWindow extends JFrame {
              */
             @Override
             public void windowClosing(WindowEvent e) {
-                if (JOptionPane.showConfirmDialog(null, "Are you sure you want to disconnect and quit?",
+                if ((JOptionPane.showConfirmDialog(null, "Are you sure you want to disconnect and quit?",
                         "Disconnect and Quit", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-                    // TODO: <-- SEND DISCONNECT MESSAGE TO SERVER -->
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) && (user.disconnect())) {
                     System.exit(0);
                 }
             }
@@ -121,6 +121,7 @@ public class ChatWindow extends JFrame {
         pnlConnectedUsers.add(pnlRoomButtons, BorderLayout.SOUTH);
 
         // **** FAKE TABLE SETUP *****
+        // TODO: Set this up to be user updated in room
         String[] colName = { "Talking To:" };
         Object[][] connectedUsers = { { "James" }, { "Sally" }, { "Brian" } };
 
@@ -205,7 +206,7 @@ public class ChatWindow extends JFrame {
                 if (e.getSource() == btnLogout) {
                     dispose();
                     // TODO: SEND DISCONNECTED MESSAGE TO SERVER
-                    new LoginWindow();
+                    user.loginWindow = new LoginWindow(user);
                 }
             }
         });
