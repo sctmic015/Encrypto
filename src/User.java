@@ -1,14 +1,32 @@
+
 /**
- * Represents a user and handles logic that UI controls
+ * Represents a user and handles logic for UI and server access control
  * 
  * @author Bradley Culligan, CLLBRA005
  * @version May 2022
  */
 
+import java.awt.EventQueue;
+import java.net.*;
+import java.io.IOException;
+
 public class User {
     private String username = "";
-    public LoginWindow loginWindow;
-    private ChatWindow chatWindow;
+    private String host;
+    private int port;
+    private Socket socket;
+    private boolean connected = false;
+    private UserRead userRead;
+    private UserWrite userWrite;
+    private String txtMessage = "";
+
+    /**
+     * Constructor to connect user to server
+     */
+    public User(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
 
     /**
      * Adjust username
@@ -25,33 +43,109 @@ public class User {
     }
 
     /**
+     * Set text message
+     */
+    public void setTextMessage(String txtMessage) {
+        this.txtMessage = txtMessage;
+    }
+
+    /**
+     * Get the text message contents
+     */
+    public String getTextMessage() {
+        return this.txtMessage;
+    }
+
+    /**
+     * Get host of user
+     */
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * Get port of user
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
      * Checks if text supplied as argument is a valid username
      * 
      * @param String: Username supplied to check if valid
      */
     public boolean validUsername() {
-        // TODO: First need to connect to server
-        return true;// (server.addUser(username));
+        begin(); // Execute the connection which will set 'connected' based on this connection
+        return connected;
     }
 
     /**
      * Start the main chat window with this user
      */
-    public void createChatWindow(User user) {
-        chatWindow = new ChatWindow(user);
+    public ChatWindow createChatWindow(User user) {
+        return (new ChatWindow(user));
     }
 
     /**
      * Attempts to disconnect the user from the server
      */
     public boolean disconnect() {
-        // TODO: Logic to be implemented sending disconnect to server
-        return true;
+        if (txtMessage.equals(":LOGOUT:")) {
+            connected = false;
+            System.out.println("Disconnected from server");
+        }
+        return !connected;
+    }
+
+    /**
+     * Begin user execution socket and launch read/write threads
+     */
+    public void begin() {
+        try {
+            socket = new Socket(host, port);
+            connected = true;
+            System.out.println("Connected to server!");
+
+            // Offload the read and write threads
+            userRead = new UserRead(socket, this);
+            userWrite = new UserWrite(socket, this);
+            userRead.start();
+            userWrite.start();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
-        User user = new User();
+        String wantedHost = "localhost";
+        int wantedPort = 4444;
+
+        // Check arguments passed, then use those instead
+        if (args.length == 1) {
+            wantedPort = Integer.parseInt(args[0]);
+        } else if (args.length == 2) {
+            wantedHost = args[0];
+            wantedPort = Integer.parseInt((args[0]));
+        } else if (args.length > 2) {
+            System.err.println(
+                    "Please ensure the proper arguments have been passed. Start a user with no arguments to connect to server on localhost with port 4444. Alternatively, pass a single argument for different port number (still hosted on localhost), or pass two arguments server hostname and port number respectively.");
+            System.exit(1);
+        }
+
+        User user = new User(wantedHost, wantedPort);
+
         // User workflow is further handled by the login window
-        user.loginWindow = new LoginWindow(user);
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    new LoginWindow(user);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

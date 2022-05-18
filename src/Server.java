@@ -36,6 +36,14 @@ public class Server {
     }
 
     /**
+     * Attempts to remove a username from the server.
+     * The method returns whether a user was successfully removed.
+     */
+    public synchronized boolean removeUser(String username) {
+        return usernames.remove(username);
+    }
+
+    /**
      * Starts server listening for connections
      */
     private void beginServer() {
@@ -58,7 +66,7 @@ public class Server {
     /**
      * Allows outputing messages to console for server logging
      */
-    public void inform(String message){
+    public void inform(String message) {
         System.out.println(message);
     }
 

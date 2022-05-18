@@ -67,7 +67,7 @@ public class ChatWindow extends JFrame {
     /**
      * Default frame constructor
      */
-    public ChatWindow(User user) {
+    public ChatWindow(User user) {// User user) {
         // Standard requirements to make and format chat window
         super("Encrypto");
         setSize(WIDTH, HEIGHT);
@@ -93,7 +93,8 @@ public class ChatWindow extends JFrame {
             public void windowClosing(WindowEvent e) {
                 if ((JOptionPane.showConfirmDialog(null, "Are you sure you want to disconnect and quit?",
                         "Disconnect and Quit", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) && (user.disconnect())) {
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)) { // && (user.disconnect())) {
+                    user.disconnect();
                     System.exit(0);
                 }
             }
@@ -204,9 +205,12 @@ public class ChatWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == btnLogout) {
+                    // Pass message to server to logout user
+                    user.setTextMessage(":LOGOUT:");
                     dispose();
-                    // TODO: SEND DISCONNECTED MESSAGE TO SERVER
-                    user.loginWindow = new LoginWindow(user);
+                    if (user.disconnect()) {
+                        new LoginWindow(new User(user.getHost(), user.getPort()));
+                    }
                 }
             }
         });
@@ -302,7 +306,8 @@ public class ChatWindow extends JFrame {
                     String messageContents = txtMessage.getText();
                     txtMessage.setText(hint);
 
-                    txtareaChatHistory.append("[You]\n" + messageContents + "\n\n");
+                    // Set the user chat contents for sending to server
+                    user.setTextMessage("[" + user.getUsername() + "]\n" + messageContents);
                 }
             });
 
