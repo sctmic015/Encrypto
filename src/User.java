@@ -93,11 +93,8 @@ public class User {
     public boolean disconnect() {
         if (txtMessage.equals(":LOGOUT:")) {
             connected = false;
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            userRead.shutdown();
+            userWrite.shutdown();
             System.out.println("Disconnected from server");
         }
         return !connected;

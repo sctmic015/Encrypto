@@ -7,12 +7,14 @@
  */
 
 import java.net.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.*;
 
 public class UserWrite extends Thread {
     private Socket socket;
     private User user;
     private BufferedWriter output;
+    private AtomicBoolean running = new AtomicBoolean(true);
 
     /**
      * Constructor
@@ -34,13 +36,22 @@ public class UserWrite extends Thread {
         }
     }
 
+    public synchronized void shutdown(){
+        try {
+            running.set(false);
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Threaded run method
      */
     @Override
     public void run() {
         try {
-            while (socket.isConnected()) {
+            while (socket.isConnected() && running.get()) {
                 String text = user.getTextMessage();
                 output.write(text);
                 output.newLine();
