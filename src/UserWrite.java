@@ -39,13 +39,6 @@ public class UserWrite extends Thread {
      */
     @Override
     public void run() {
-        /*
-         * try {
-         * // Send the user's username first, then proceed
-         * output.write(user.getUsername());
-         * output.newLine();
-         * output.flush();
-         */
         try {
             while (socket.isConnected()) {
                 String text = user.getTextMessage();
@@ -57,10 +50,4 @@ public class UserWrite extends Thread {
             e.printStackTrace();
         }
     }
-    /*
-     * } catch (IOException e) {
-     * e.printStackTrace();
-     * }
-     */
 }
-// }
