@@ -18,7 +18,7 @@ public class User {
     private boolean connected = false;
     private UserRead userRead;
     private UserWrite userWrite;
-    private String txtMessage = "";
+    private String txtMessage = ""; // TODO: ?Change this to controlMessage which users can't send...
 
     /**
      * Constructor to connect user to server

@@ -62,12 +62,13 @@ public class ServerThread extends Thread {
         } while (!receivedText.equals(":LOGOUT:"));
 
         // Logout command received, remove user
-        server.removeUser(username);
-        System.out.println(username + " has disconnected");
-        /* try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } */
+        if (server.removeUser(username)){
+            server.inform(username + " has disconnected");
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
