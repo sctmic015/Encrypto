@@ -19,6 +19,7 @@ public class User {
     private UserRead userRead;
     private UserWrite userWrite;
     private String txtMessage = "";
+    private String receivedMessage = "";
 
     /**
      * Constructor to connect user to server
@@ -54,6 +55,20 @@ public class User {
      */
     public synchronized String getTextMessage() {
         return this.txtMessage;
+    }
+
+    /**
+     * Set received message
+     */
+    public synchronized void setReceivedMessage(String txtMessage) {
+        this.receivedMessage = txtMessage;
+    }
+
+    /**
+     * Get the received message contents
+     */
+    public synchronized String getReceivedMessage() {
+        return this.receivedMessage;
     }
 
     /**

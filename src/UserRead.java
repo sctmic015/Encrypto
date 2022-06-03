@@ -48,7 +48,12 @@ public class UserRead extends Thread{
     @Override
     public void run() {
         while (socket.isConnected() && running.get()) {
-            // TOOD: User read logic
+            // Receive the text from server
+            try {
+                user.setReceivedMessage(input.readLine());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
