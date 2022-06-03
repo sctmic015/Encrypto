@@ -18,7 +18,7 @@ public class User {
     private boolean connected = false;
     private UserRead userRead;
     private UserWrite userWrite;
-    private String txtMessage = ""; // TODO: ?Change this to controlMessage which users can't send...
+    private String txtMessage = "";
 
     /**
      * Constructor to connect user to server
@@ -45,14 +45,14 @@ public class User {
     /**
      * Set text message
      */
-    public void setTextMessage(String txtMessage) {
+    public synchronized void setTextMessage(String txtMessage) {
         this.txtMessage = txtMessage;
     }
 
     /**
      * Get the text message contents
      */
-    public String getTextMessage() {
+    public synchronized String getTextMessage() {
         return this.txtMessage;
     }
 
@@ -76,7 +76,8 @@ public class User {
      * @param String: Username supplied to check if valid
      */
     public boolean validUsername() {
-        begin(); // Execute the connection which will set 'connected' based on this connection
+        if (username.length() > 0 && username.length() < 18)
+            begin(); // Execute the connection which will set 'connected' based on this connection
         return connected;
     }
 
@@ -91,12 +92,11 @@ public class User {
      * Attempts to disconnect the user from the server
      */
     public boolean disconnect() {
-        if (txtMessage.equals(":LOGOUT:")) {
-            connected = false;
-            userRead.shutdown();
-            userWrite.shutdown();
-            System.out.println("Disconnected from server");
-        }
+        // Shutdown read/write threads and update connection status
+        userRead.shutdown();
+        userWrite.shutdown();
+        connected = false;
+        System.out.println("Disconnected from server");
         return !connected;
     }
 

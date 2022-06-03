@@ -30,6 +30,9 @@ public class UserRead extends Thread{
         }
     }
     
+    /**
+     * Sends final message to server and closes socket connection
+     */
     public synchronized void shutdown() {
         try {
             running.set(false);

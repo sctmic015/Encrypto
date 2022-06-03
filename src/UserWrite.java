@@ -36,6 +36,9 @@ public class UserWrite extends Thread {
         }
     }
 
+    /**
+     * Sends final message to server and closes socket connection
+     */
     public synchronized void shutdown(){
         try {
             running.set(false);
@@ -53,9 +56,15 @@ public class UserWrite extends Thread {
         try {
             while (socket.isConnected() && running.get()) {
                 String text = user.getTextMessage();
-                output.write(text);
-                output.newLine();
-                output.flush();
+                // Only send text if there is something meaningful to send
+                if (text != "") {
+                    output.write(text);
+                    output.newLine();
+                    output.flush();
+
+                    // Message has been flushed, reset the text message
+                    user.setTextMessage("");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
