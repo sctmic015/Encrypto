@@ -7,6 +7,8 @@
  */
 
 import java.net.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.io.*;
 
 public class ServerThread extends Thread {
@@ -70,5 +72,41 @@ public class ServerThread extends Thread {
                 e.printStackTrace();
             } */
         }
+    }
+
+    // Method to start new Room
+    public void startRoom(String roomID, String username){ //Make this boolean to check that no room with existing ID exists
+        //Check that room name not taken
+        server.addRoom(new Room(roomID));
+        joinRoom(roomID, username);
+    }
+
+    // Method to join a Room
+    public void joinRoom(String roomID, String username){
+        server.getRoom(roomID).addUser(username);
+    }
+
+    // Method to leave a room
+    public void leaveRoom(String roomID, String username){
+        server.getRoom(roomID).removeUser(username);
+    }
+
+    // Method to broadcast message to all users in a room
+    public void msgRoom(String roomID, String msg){
+        //Get list of all users in room
+        Set<String> usernames = server.getRoom(roomID).getUsernames();
+
+        // Set<User> users = new HashSet<>();
+        // for (String s : usernames) {
+        //     if (server.equals(r.getRoomID()))
+        //         returnRoom = r;
+        // }
+        // return returnRoom;
+
+
+        // convert username set to user set, then run for loop over all users, sending the msg to all user read threads
+
+        //Send a txt message to all users in a given room.
+        //This means writting the txt to user read threads.
     }
 }

@@ -19,6 +19,7 @@ public class User {
     private UserRead userRead;
     private UserWrite userWrite;
     private String txtMessage = ""; // TODO: ?Change this to controlMessage which users can't send...
+    // private Room curRoom;
 
     /**
      * Constructor to connect user to server
@@ -150,4 +151,12 @@ public class User {
             }
         });
     }
+
+    // public Room getCurRoom(){
+    //     return curRoom;
+    // }
+
+    // public void setCurRoom(Room r){
+    //     curRoom = r;
+    // }
 }

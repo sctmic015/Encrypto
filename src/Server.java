@@ -14,7 +14,7 @@ public class Server {
     private int port;
     // Store a set of unique connected usernames and rooms for the server to track
     private Set<String> usernames = new HashSet<>();
-    // private Set<Room> rooms = new HashSet<>();
+    private Set<Room> rooms = new HashSet<>();
 
     /**
      * Server constructor with port number supplied
@@ -43,6 +43,22 @@ public class Server {
         return usernames.remove(username);
     }
 
+    //Allows users to create rooms
+    // Should check that the given room doesn't already exist
+    public void addRoom(Room newRoom){
+        rooms.add(newRoom);
+    }
+
+    //Should check that the 
+    public Room getRoom(String roomID){
+        Room returnRoom = null;
+        for (Room r : rooms) {
+            if (roomID.equals(r.getRoomID()))
+                returnRoom = r;
+        }
+        return returnRoom;
+    }
+
     /**
      * Starts server listening for connections
      */
@@ -62,6 +78,7 @@ public class Server {
             e.printStackTrace();
         }
     }
+
 
     /**
      * Allows outputing messages to console for server logging

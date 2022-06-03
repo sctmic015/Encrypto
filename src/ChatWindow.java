@@ -6,6 +6,7 @@
  * @version May 2022
  */
 
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -63,6 +64,7 @@ public class ChatWindow extends JFrame {
     private String hint = "Type a message...";
     private boolean splashOpen = true;
     private User user;
+    private String curRoomID = null;
 
     /**
      * Default frame constructor
@@ -180,10 +182,27 @@ public class ChatWindow extends JFrame {
         btnStartRoom.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: Room starting logic to be implemented
                 if (e.getSource() == btnStartRoom) {
-                    JOptionPane.showMessageDialog(null, "Starting Room...");
-                    // TODO: SEND START ROOM MESSAGE TO SERVER
+
+                    // Popup design
+                    JTextField roomID = new JTextField(10);
+                    JTextField password = new JTextField(10);
+                    JPanel myPanel = new JPanel();
+                    myPanel.add(new JLabel("Enter new room name:"));
+                    myPanel.add(roomID);
+                    myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                    myPanel.add(new JLabel("Create new room passord:"));
+                    myPanel.add(password);
+                    
+                    // Open popup
+                    int result = JOptionPane.showConfirmDialog(null, myPanel, 
+                             "Start new room", JOptionPane.OK_CANCEL_OPTION);
+                    if (result == JOptionPane.OK_OPTION) {
+                        //Write check to ensure room ID is unique and id/password are not null
+                        user.setTextMessage(":START:" + roomID.getText() + ":" + user.getUsername());
+                        curRoomID = roomID.getText(); //This assumes not checking for issues with given room ID
+                        //TO DO: Change all GUI to show in new room
+                    }
                 }
             }
         });
@@ -192,10 +211,24 @@ public class ChatWindow extends JFrame {
         btnJoinRoom.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: Room joining logic to be implemented
                 if (e.getSource() == btnJoinRoom) {
-                    JOptionPane.showMessageDialog(null, "Joining Room...");
-                    // TODO: SEND START ROOM MESSAGE TO SERVER
+                    JTextField roomID = new JTextField(10);
+                    JTextField password = new JTextField(10);
+              
+                    JPanel myPanel = new JPanel();
+                    myPanel.add(new JLabel("Enter room name:"));
+                    myPanel.add(roomID);
+                    myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                    myPanel.add(new JLabel("Enter room passord:"));
+                    myPanel.add(password);
+              
+                    int result = JOptionPane.showConfirmDialog(null, myPanel, 
+                             "Join room", JOptionPane.OK_CANCEL_OPTION);
+                    if (result == JOptionPane.OK_OPTION) {
+                        user.setTextMessage(":JOIN:" + roomID.getText() + ":" + user.getUsername());
+                        curRoomID = roomID.getText(); //This assumes not checking for issues with given room ID
+                        //TO DO: Change all GUI to show in new room
+                    }                   
                 }
             }
         });
@@ -307,7 +340,7 @@ public class ChatWindow extends JFrame {
                     txtMessage.setText(hint);
 
                     // Set the user chat contents for sending to server
-                    user.setTextMessage("[" + user.getUsername() + "]\n" + messageContents);
+                    user.setTextMessage(":MESSAGE:" + ":" + curRoomID + ":" + "[" + user.getUsername() + "]\n" + messageContents);
                 }
             });
 
