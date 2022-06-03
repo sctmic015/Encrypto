@@ -4,14 +4,14 @@ import java.util.Set;
 // Abstraction of a chat room that users connect to in order to share secure messages
 
 public class Room {
-    
+
     private String roomID;
     //private String password;
     private Set<String> usernames; //changeto SET
     private Set<ServerThread> sThreads;
 
     // Initialise a new, empty room
-    public Room(String roomID){
+    public Room(String roomID) {
         this.roomID = roomID;
         usernames = new HashSet<>();
         sThreads = new HashSet<>();
@@ -24,8 +24,8 @@ public class Room {
         sThreads.add(sThread);
     }
 
-    // Method to remove user from room 
-    public void removeUser(String username){
+    // Method to remove user from room
+    public void removeUser(String username) {
         usernames.remove(username);
     }
 
@@ -37,7 +37,7 @@ public class Room {
         return roomID;
     }
 
-    public Set<String> getUsernames(){
+    public Set<String> getUsernames() {
         return usernames;
     }
 
@@ -52,6 +52,6 @@ public class Room {
     }
 
     // public String getPass(){
-    //     return password;
+    // return password;
     // }
 }

@@ -7,14 +7,12 @@
  */
 
 import java.net.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.*;
 
 public class UserWrite extends Thread {
     private Socket socket;
     private User user;
     private BufferedWriter output;
-    private AtomicBoolean running = new AtomicBoolean(true);
 
     /**
      * Constructor
@@ -37,24 +35,12 @@ public class UserWrite extends Thread {
     }
 
     /**
-     * Sends final message to server and closes socket connection
-     */
-    public synchronized void shutdown(){
-        try {
-            running.set(false);
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Threaded run method
      */
     @Override
     public void run() {
-        try {
-            while (socket.isConnected() && running.get()) {
+        while (socket.isConnected() && user.isConnected()) { 
+            try {
                 String text = user.getTextMessage();
                 // Only send text if there is something meaningful to send
                 if (text != "") {
@@ -65,7 +51,14 @@ public class UserWrite extends Thread {
                     // Message has been flushed, reset the text message
                     user.setTextMessage("");
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
+
+        // User no longer connected so close socket
+        try {
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

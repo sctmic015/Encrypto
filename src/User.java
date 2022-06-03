@@ -15,7 +15,7 @@ public class User {
     private String host;
     private int port;
     private Socket socket;
-    private boolean connected = false;
+    private volatile boolean connected = false;
     private UserRead userRead;
     private UserWrite userWrite;
     private String txtMessage = "";
@@ -104,12 +104,16 @@ public class User {
     }
 
     /**
+     * Return connection status of user with server
+     */
+    public boolean isConnected() {
+        return connected;
+    }
+
+    /**
      * Attempts to disconnect the user from the server
      */
     public boolean disconnect() {
-        // Shutdown read/write threads and update connection status
-        userRead.shutdown();
-        userWrite.shutdown();
         connected = false;
         System.out.println("Disconnected from server");
         return !connected;
@@ -167,10 +171,10 @@ public class User {
     }
 
     // public Room getCurRoom(){
-    //     return curRoom;
+    // return curRoom;
     // }
 
     // public void setCurRoom(Room r){
-    //     curRoom = r;
+    // curRoom = r;
     // }
 }
