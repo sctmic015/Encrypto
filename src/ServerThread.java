@@ -7,8 +7,6 @@
  */
 
 import java.net.*;
-import java.util.HashSet;
-import java.util.Set;
 import java.io.*;
 
 public class ServerThread extends Thread {
@@ -46,13 +44,13 @@ public class ServerThread extends Thread {
         }
     }
 
-    public void sendMsg(String msg){
-        try{
+    public void sendMsg(String msg) {
+        try {
             output.write(msg);
             output.newLine();
             output.flush();
         } catch (IOException e) {
-            e.printStackTrace();        
+            e.printStackTrace();
         }
     }
 
@@ -77,9 +75,18 @@ public class ServerThread extends Thread {
             String[] input = receivedText.split(":");
             switch (input[1]) {
                 case "LOGOUT":
+                    // Logout command received, remove user
                     if (server.removeUser(username)) {
+                        // Send message to user to shut down connection
+                        try {
+                            output.write(":SHUTDOWN:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                         server.inform(username + " has disconnected");
-                        // Other log out actions
                         break;
                     }
                 case "START":
@@ -92,46 +99,47 @@ public class ServerThread extends Thread {
                     msgRoom(input[2], input[3]);
             }
             // if (receivedText.equals(":LOGOUT:")) {
-            //     // Logout command received, remove user
-            //     if (server.removeUser(username)) {
-            //         server.inform(username + " has disconnected");
-            //         break;
-            //     }
+            // // Logout command received, remove user
+            // if (server.removeUser(username)) {
+            // server.inform(username + " has disconnected");
+            // break;
+            // }
             // } else if (receivedText.equals(":START:")) {
-            //     // TODO: server.startRoom(id);
-            //     // server.joinRoom(id, username);
+            // // TODO: server.startRoom(id);
+            // // server.joinRoom(id, username);
             // } else if (receivedText.equals(":JOIN:")) {
-            //     // TODO: server.joinRoom(id, username);
+            // // TODO: server.joinRoom(id, username);
             // } else {
-            //     // No control command, so pass message to room participants
-            //     // TODO: server.msgRoom(receivedText);
-            //     server.inform(receivedText);
+            // // No control command, so pass message to room participants
+            // // TODO: server.msgRoom(receivedText);
+            // server.inform(receivedText);
             // }
         }
     }
 
     // Method to start new Room
-    public void startRoom(String roomID, String username){ //Make this boolean to check that no room with existing ID exists
-        //Check that room name not taken
+    public void startRoom(String roomID, String username) { // Make this boolean to check that no room with existing ID
+                                                            // exists
+        // Check that room name not taken
         server.addRoom(new Room(roomID));
         joinRoom(roomID, username);
-        //server.inform(server.getRoom(roomID).toString());
+        // server.inform(server.getRoom(roomID).toString());
     }
 
     // Method to join a Room
-    public void joinRoom(String roomID, String username){
+    public void joinRoom(String roomID, String username) {
         server.getRoom(roomID).addUser(username, this);
     }
 
     // Method to leave a room
-    public void leaveRoom(String roomID, String username){
+    public void leaveRoom(String roomID, String username) {
         Room room = server.getRoom(roomID);
         room.removeUser(username);
         room.removeThread(this);
     }
 
     // Method to broadcast message to all users in a room
-    public void msgRoom(String roomID, String msg){
+    public void msgRoom(String roomID, String msg) {
         server.getRoom(roomID).broadcastMessage(msg);
     }
 }
