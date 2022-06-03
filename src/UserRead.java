@@ -48,6 +48,7 @@ public class UserRead extends Thread {
                     }
                     // Regular message so set user's received message to the read line
                     user.setReceivedMessage(line);
+                    user.inform(user.getReceivedMessage());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

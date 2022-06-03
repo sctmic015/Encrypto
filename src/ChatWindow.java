@@ -64,7 +64,7 @@ public class ChatWindow extends JFrame {
     private String hint = "Type a message...";
     private boolean splashOpen = true;
     private User user;
-    private String curRoomID = null;
+    private String curRoomID = "";
 
     /**
      * Default frame constructor
@@ -191,7 +191,7 @@ public class ChatWindow extends JFrame {
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter new room name:"));
                     myPanel.add(roomID);
-                    myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                    myPanel.add(Box.createHorizontalStrut(5)); // a spacer
                     myPanel.add(new JLabel("Create new room passord:"));
                     myPanel.add(password);
                     
@@ -199,10 +199,11 @@ public class ChatWindow extends JFrame {
                     int result = JOptionPane.showConfirmDialog(null, myPanel, 
                              "Start new room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
-                        //Write check to ensure room ID is unique and id/password are not null
-                        user.setTextMessage(":START:" + roomID.getText() + ":" + user.getUsername());
-                        curRoomID = roomID.getText(); //This assumes not checking for issues with given room ID
-                        //TO DO: Change all GUI to show in new room
+                        // TODO: Write check to ensure room ID is unique and id/password are not null
+                        curRoomID = roomID.getText();
+                        user.setTextMessage(":START:" + curRoomID + ":");
+                        //This assumes not checking for issues with given room ID
+                        //TODO: Change all GUI to show in new room
                     }
                 }
             }
@@ -219,16 +220,18 @@ public class ChatWindow extends JFrame {
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter room name:"));
                     myPanel.add(roomID);
-                    myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                    myPanel.add(Box.createHorizontalStrut(5)); // a spacer
                     myPanel.add(new JLabel("Enter room passord:"));
                     myPanel.add(password);
               
                     int result = JOptionPane.showConfirmDialog(null, myPanel, 
                              "Join room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
-                        user.setTextMessage(":JOIN:" + roomID.getText() + ":" + user.getUsername());
-                        curRoomID = roomID.getText(); //This assumes not checking for issues with given room ID
-                        //TO DO: Change all GUI to show in new room
+                        // TODO: Write check to ensure room ID is unique and id/password are not null
+                        curRoomID = roomID.getText();
+                        user.setTextMessage(":JOIN:" + curRoomID + ":");
+                        // This assumes not checking for issues with given room ID
+                        // TODO: Change all GUI to show in new room
                     }                   
                 }
             }

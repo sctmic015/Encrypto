@@ -44,6 +44,10 @@ public class ServerThread extends Thread {
         }
     }
 
+    public String getUsername() {
+        return username;
+    }
+
     public void sendMsg(String msg) {
         try {
             output.write(msg);
@@ -60,9 +64,10 @@ public class ServerThread extends Thread {
     @Override
     public void run() {
         String receivedText = "";
+        boolean running = true;
 
         // Continuously read the inputted data and act accordingly
-        while (true) {
+        while (running) {
             // Receive the text from user
             try {
                 receivedText = input.readLine();
@@ -72,8 +77,20 @@ public class ServerThread extends Thread {
             }
 
             // Check for control commands, and handles command approriately
-            String[] input = receivedText.split(":");
-            switch (input[1]) {
+            String[] controlCommands = receivedText.split(":", 4);
+            // Assign the split variables appropriately
+            String message = "";
+            String command = "";
+            String roomID = "";
+            if (controlCommands.length > 0) {
+                command = controlCommands[1]; // Item zero is throwaway
+                if (controlCommands.length > 2) {
+                    roomID = controlCommands[2];
+                }
+                message = controlCommands[controlCommands.length - 1];
+            }
+
+            switch (command) {
                 case "LOGOUT":
                     // Logout command received, remove user
                     if (server.removeUser(username)) {
@@ -87,55 +104,41 @@ public class ServerThread extends Thread {
                         }
 
                         server.inform(username + " has disconnected");
+                        running = false;
                         break;
                     }
                 case "START":
-                    startRoom(input[2], input[3]);
+                    startRoom(roomID);
                     break;
                 case "JOIN":
-                    joinRoom(input[2], input[3]);
+                    joinRoom(roomID);
                     break;
                 case "MESSAGE":
-                    msgRoom(input[2], input[3]);
+                    msgRoom(roomID, message);
+                    break;
+                default:
+                    break;
             }
-            // if (receivedText.equals(":LOGOUT:")) {
-            // // Logout command received, remove user
-            // if (server.removeUser(username)) {
-            // server.inform(username + " has disconnected");
-            // break;
-            // }
-            // } else if (receivedText.equals(":START:")) {
-            // // TODO: server.startRoom(id);
-            // // server.joinRoom(id, username);
-            // } else if (receivedText.equals(":JOIN:")) {
-            // // TODO: server.joinRoom(id, username);
-            // } else {
-            // // No control command, so pass message to room participants
-            // // TODO: server.msgRoom(receivedText);
-            // server.inform(receivedText);
-            // }
         }
     }
 
     // Method to start new Room
-    public void startRoom(String roomID, String username) { // Make this boolean to check that no room with existing ID
-                                                            // exists
+    public void startRoom(String roomID) {
+        // Make this boolean to check that no room with existing ID exists
         // Check that room name not taken
         server.addRoom(new Room(roomID));
-        joinRoom(roomID, username);
+        joinRoom(roomID);
         // server.inform(server.getRoom(roomID).toString());
     }
 
     // Method to join a Room
-    public void joinRoom(String roomID, String username) {
-        server.getRoom(roomID).addUser(username, this);
+    public void joinRoom(String roomID) {
+        server.getRoom(roomID).addUser(this);
     }
 
     // Method to leave a room
-    public void leaveRoom(String roomID, String username) {
-        Room room = server.getRoom(roomID);
-        room.removeUser(username);
-        room.removeThread(this);
+    public void leaveRoom(String roomID) {
+        server.getRoom(roomID).removeUser(this);
     }
 
     // Method to broadcast message to all users in a room

@@ -120,6 +120,13 @@ public class User {
     }
 
     /**
+     * User inform method for testing
+     */
+    public void inform(String text) {
+        System.out.println(text);
+    }
+
+    /**
      * Begin user execution socket and launch read/write threads
      */
     public void begin() {
