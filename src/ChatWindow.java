@@ -341,7 +341,7 @@ public class ChatWindow extends JFrame {
                     txtMessage.setText(hint);
 
                     // Set the user chat contents for sending to server
-                    user.setTextMessage(":MESSAGE:" + ":" + curRoomID + ":" + "[" + user.getUsername() + "]\n" + messageContents);
+                    user.setTextMessage(":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
                 }
             });
 

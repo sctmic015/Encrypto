@@ -49,7 +49,7 @@ public class Server {
         rooms.add(newRoom);
     }
 
-    //Should check that the 
+    //gets the room associated with the given ID. If this doesn't exist, it will return null. Might need handeling
     public Room getRoom(String roomID){
         Room returnRoom = null;
         for (Room r : rooms) {

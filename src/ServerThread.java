@@ -46,6 +46,16 @@ public class ServerThread extends Thread {
         }
     }
 
+    public void sendMsg(String msg){
+        try{
+            output.write(msg);
+            output.newLine();
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();        
+        }
+    }
+
     /**
      * Thread run method which handles input and output
      */
@@ -55,32 +65,48 @@ public class ServerThread extends Thread {
 
         // Continuously read the inputted data and act accordingly
         while (true) {
-
             // Receive the text from user
             try {
                 receivedText = input.readLine();
+                server.inform(receivedText);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            // Check for control command, if none of the control commands sent, then pass
-            // message to members of chat room
-            if (receivedText.equals(":LOGOUT:")) {
-                // Logout command received, remove user
-                if (server.removeUser(username)) {
-                    server.inform(username + " has disconnected");
+            // Check for control commands, and handles command approriately
+            String[] input = receivedText.split(":");
+            switch (input[1]) {
+                case "LOGOUT":
+                    if (server.removeUser(username)) {
+                        server.inform(username + " has disconnected");
+                        // Other log out actions
+                        break;
+                    }
+                case "START":
+                    startRoom(input[2], input[3]);
                     break;
-                }
-            } else if (receivedText.equals(":START:")) {
-                // TODO: server.startRoom(id);
-                // server.joinRoom(id, username);
-            } else if (receivedText.equals(":JOIN:")) {
-                // TODO: server.joinRoom(id, username);
-            } else {
-                // No control command, so pass message to room participants
-                // TODO: server.msgRoom(receivedText);
-                server.inform(receivedText);
+                case "JOIN":
+                    joinRoom(input[2], input[3]);
+                    break;
+                case "MESSAGE":
+                    msgRoom(input[2], input[3]);
             }
+            // if (receivedText.equals(":LOGOUT:")) {
+            //     // Logout command received, remove user
+            //     if (server.removeUser(username)) {
+            //         server.inform(username + " has disconnected");
+            //         break;
+            //     }
+            // } else if (receivedText.equals(":START:")) {
+            //     // TODO: server.startRoom(id);
+            //     // server.joinRoom(id, username);
+            // } else if (receivedText.equals(":JOIN:")) {
+            //     // TODO: server.joinRoom(id, username);
+            // } else {
+            //     // No control command, so pass message to room participants
+            //     // TODO: server.msgRoom(receivedText);
+            //     server.inform(receivedText);
+            // }
         }
     }
 
@@ -89,34 +115,23 @@ public class ServerThread extends Thread {
         //Check that room name not taken
         server.addRoom(new Room(roomID));
         joinRoom(roomID, username);
+        //server.inform(server.getRoom(roomID).toString());
     }
 
     // Method to join a Room
     public void joinRoom(String roomID, String username){
-        server.getRoom(roomID).addUser(username);
+        server.getRoom(roomID).addUser(username, this);
     }
 
     // Method to leave a room
     public void leaveRoom(String roomID, String username){
-        server.getRoom(roomID).removeUser(username);
+        Room room = server.getRoom(roomID);
+        room.removeUser(username);
+        room.removeThread(this);
     }
 
     // Method to broadcast message to all users in a room
     public void msgRoom(String roomID, String msg){
-        //Get list of all users in room
-        Set<String> usernames = server.getRoom(roomID).getUsernames();
-
-        // Set<User> users = new HashSet<>();
-        // for (String s : usernames) {
-        //     if (server.equals(r.getRoomID()))
-        //         returnRoom = r;
-        // }
-        // return returnRoom;
-
-
-        // convert username set to user set, then run for loop over all users, sending the msg to all user read threads
-
-        //Send a txt message to all users in a given room.
-        //This means writting the txt to user read threads.
+        server.getRoom(roomID).broadcastMessage(msg);
     }
 }
