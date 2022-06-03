@@ -35,7 +35,7 @@ public class ServerThread extends Thread {
             // server to add this username
             username = input.readLine();
             if (!server.addUser(username)) {
-                //socket.close(); // Close connection if user can't be added
+                // socket.close(); // Close connection if user can't be added
             } else {
                 // User was successfully added and is connected in this thread; let the server
                 // output this news to console
@@ -53,24 +53,34 @@ public class ServerThread extends Thread {
     public void run() {
         String receivedText = "";
 
-        // While the logout command hasn't been given, keep processing
-        do {
+        // Continuously read the inputted data and act accordingly
+        while (true) {
+
+            // Receive the text from user
             try {
                 receivedText = input.readLine();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            // TODO: Implement logic to forward message to room participants
-        } while (!receivedText.equals(":LOGOUT:"));
 
-        // Logout command received, remove user
-        if (server.removeUser(username)){
-            server.inform(username + " has disconnected");/* 
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } */
+            // Check for control command, if none of the control commands sent, then pass
+            // message to members of chat room
+            if (receivedText.equals(":LOGOUT:")) {
+                // Logout command received, remove user
+                if (server.removeUser(username)) {
+                    server.inform(username + " has disconnected");
+                    break;
+                }
+            } else if (receivedText.equals(":START:")) {
+                // TODO: server.startRoom(id);
+                // server.joinRoom(id, username);
+            } else if (receivedText.equals(":JOIN:")) {
+                // TODO: server.joinRoom(id, username);
+            } else {
+                // No control command, so pass message to room participants
+                // TODO: server.msgRoom(receivedText);
+                server.inform(receivedText);
+            }
         }
     }
 

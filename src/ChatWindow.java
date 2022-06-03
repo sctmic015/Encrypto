@@ -95,7 +95,8 @@ public class ChatWindow extends JFrame {
             public void windowClosing(WindowEvent e) {
                 if ((JOptionPane.showConfirmDialog(null, "Are you sure you want to disconnect and quit?",
                         "Disconnect and Quit", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)) { // && (user.disconnect())) {
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)) {
+                    user.setTextMessage(":LOGOUT:");
                     user.disconnect();
                     System.exit(0);
                 }
