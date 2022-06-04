@@ -8,11 +8,15 @@
 
 import java.net.*;
 import java.io.*;
+import java.security.KeyPair;
+import java.security.PublicKey;
 
 public class UserWrite extends Thread {
     private Socket socket;
     private User user;
     private BufferedWriter output;
+    private ObjectOutput publicKeyOut;
+    private PublicKey publicKey;
 
     /**
      * Constructor
@@ -20,15 +24,19 @@ public class UserWrite extends Thread {
     public UserWrite(Socket socket, User user) {
         this.socket = socket;
         this.user = user;
+        this.publicKey = user.getPublicKey();
 
         // Setup the output handler
         try {
             output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            publicKeyOut = new ObjectOutputStream(socket.getOutputStream());
 
             // Send the user's username first
             output.write(user.getUsername());
             output.newLine();
             output.flush();
+            publicKeyOut.writeObject(publicKey);
+            publicKeyOut.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
