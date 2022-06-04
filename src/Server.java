@@ -24,6 +24,18 @@ public class Server {
     }
 
     /**
+     * Check if room with ID supplied exists
+     */
+    public boolean containsRoom(String roomID) {
+        for (Room r : rooms) {
+            if (roomID.equals(r.getRoomID()))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Attempts to add a username to the server if it's available.
      * The method returns whether a user was successfully added.
      */

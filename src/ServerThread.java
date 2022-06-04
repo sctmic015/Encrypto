@@ -108,18 +108,24 @@ public class ServerThread extends Thread {
                         break;
                     }
                 case "START":
-                    if (validID(roomID)){
+                    if (validID(roomID)) {
                         startRoom(roomID);
+                    } else {
+                        System.err.println("Invalid roomID for starting room...");
                     }
                     break;
                 case "JOIN":
-                    if (validID(roomID)){
+                    if (validID(roomID) && server.containsRoom(roomID)) {
                         joinRoom(roomID);
+                    } else {
+                        System.err.println("Invalid roomID for joining room...");
                     }
                     break;
                 case "MESSAGE":
-                    if (validID(roomID)){
+                    if (validID(roomID) && server.containsRoom(roomID)) {
                         msgRoom(roomID, message);
+                    } else {
+                        System.err.println("Invalid roomID to send message...");
                     }
                     break;
                 default:
