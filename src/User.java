@@ -110,8 +110,9 @@ public class User {
      * @param String: Username supplied to check if valid
      */
     public boolean validUsername() {
-        if (username.length() > 0 && username.length() < 18)
+        if (username.length() > 0 && username.length() < 18) {
             begin(); // Execute the connection which will set 'connected' based on this connection
+        }
         return connected;
     }
 

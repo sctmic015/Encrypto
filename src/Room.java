@@ -7,6 +7,7 @@
  * @version June 2022
  */
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,8 +43,8 @@ public class Room {
     /**
      * Retrieve usernames of all users in a room
      */
-    public Set<String> getUsernames() {
-        Set<String> usernames = new HashSet<>();
+    public ArrayList<String> getUsernames() {
+        ArrayList<String> usernames = new ArrayList<>();
         for (ServerThread sThread : sThreads) {
             usernames.add(sThread.getUsername());
         }
