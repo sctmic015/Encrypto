@@ -184,6 +184,7 @@ public class ChatWindow extends JFrame {
                     if (result == JOptionPane.OK_OPTION) {
                         // TODO: Write check to ensure room ID is unique and id/password are not null
                         curRoomID = roomID.getText();
+                        lblChattingToUsername.setText(curRoomID);
                         user.setTextMessage(":START:" + curRoomID + ":");
                         setupChat();
                     }
@@ -211,6 +212,7 @@ public class ChatWindow extends JFrame {
                     if (result == JOptionPane.OK_OPTION) {
                         // TODO: Write check to ensure room ID is unique and id/password are not null
                         curRoomID = roomID.getText();
+                        lblChattingToUsername.setText(curRoomID);
                         user.setTextMessage(":JOIN:" + curRoomID + ":");
                         setupChat();
                     }
