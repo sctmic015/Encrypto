@@ -180,6 +180,7 @@ public class User {
     // Display an incoming message to the GUI chat area
     public void addNewMessage(){
         //TODO: Show the new message (stored in receivedMessage) on to GUI
+        
     }
 
     // Update GUI to show new list of room users

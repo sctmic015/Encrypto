@@ -109,18 +109,37 @@ public class ServerThread extends Thread {
                         break;
                     }
                 case "START":
-                    startRoom(roomID);
+                    if (validID(roomID)) {
+                        startRoom(roomID);
+                    } else {
+                        System.err.println("Invalid roomID for starting room...");
+                    }
                     break;
                 case "JOIN":
-                    joinRoom(roomID);
+                    if (validID(roomID) && server.containsRoom(roomID)) {
+                        joinRoom(roomID);
+                    } else {
+                        System.err.println("Invalid roomID for joining room...");
+                    }
                     break;
                 case "MESSAGE":
-                    msgRoom(roomID, ":MESSAGE:" + message);
+                    if (validID(roomID) && server.containsRoom(roomID)) {
+                        msgRoom(roomID, ":MESSAGE:" + message);
+                    } else {
+                        System.err.println("Invalid roomID to send message...");
+                    }
                     break;
                 default:
                     break;
             }
         }
+    }
+
+    /**
+     * Verifies that the supplied ID is valid
+     */
+    public boolean validID(String ID) {
+        return (ID.length() > 0);
     }
 
     // Method to start new Room

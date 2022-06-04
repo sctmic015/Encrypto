@@ -62,14 +62,14 @@ public class ChatWindow extends JFrame {
     private String chosenChatName = "Welcome!";
     private String personalUsername;
     private String hint = "Type a message...";
-    private boolean splashOpen = true;
+    // private boolean splashOpen = true;
     private User user;
     private String curRoomID = "";
 
     /**
      * Default frame constructor
      */
-    public ChatWindow(User user) {// User user) {
+    public ChatWindow(User user) {
         // Standard requirements to make and format chat window
         super("Encrypto");
         setSize(WIDTH, HEIGHT);
@@ -124,10 +124,8 @@ public class ChatWindow extends JFrame {
         pnlConnectedUsers.setLayout(new BorderLayout());
         pnlConnectedUsers.add(pnlRoomButtons, BorderLayout.SOUTH);
 
-        // **** FAKE TABLE SETUP *****
-        // TODO: Set this up to be user updated in room
-        String[] colName = { "Talking To:" };
-        Object[][] connectedUsers = { { "James" }, { "Sally" }, { "Brian" } };
+        String[] colName = { "Encrypto" };
+        Object[][] connectedUsers = {};
 
         // Create table without editing permissions
         tblConnectedUsers = new JTable(connectedUsers, colName) {
@@ -142,21 +140,23 @@ public class ChatWindow extends JFrame {
         tblConnectedUsers.setCellSelectionEnabled(false);
 
         // Add mouse event to get selected user from table
-        tblConnectedUsers.addMouseListener(new MouseAdapter() {
-            /**
-             * Get the selected user and setup a chat with them
-             */
-            @Override
-            public void mousePressed(MouseEvent e) {
-                String selectedUser;
-                int row = tblConnectedUsers.getSelectedRow();
-                int col = tblConnectedUsers.getSelectedColumn();
-                selectedUser = (String) tblConnectedUsers.getValueAt(row, col);
-                chosenChatName = selectedUser;
-                setupChat();
-                splashOpen = false; // Set the splash option off (Chat currently open)
-            }
-        });
+        /*
+         * tblConnectedUsers.addMouseListener(new MouseAdapter() {
+         * /**
+         * Get the selected user and setup a chat with them
+         *
+         * @Override
+         * public void mousePressed(MouseEvent e) {
+         * String selectedUser;
+         * int row = tblConnectedUsers.getSelectedRow();
+         * int col = tblConnectedUsers.getSelectedColumn();
+         * selectedUser = (String) tblConnectedUsers.getValueAt(row, col);
+         * chosenChatName = selectedUser;
+         * setupChat();
+         * splashOpen = false; // Set the splash option off (Chat currently open)
+         * }
+         * });
+         */
 
         // Get the default table cell renderer for this class and adjust its horizontal
         // alignment to centre (horizontally) text items in cells
@@ -194,16 +194,15 @@ public class ChatWindow extends JFrame {
                     myPanel.add(Box.createHorizontalStrut(5)); // a spacer
                     myPanel.add(new JLabel("Create new room passord:"));
                     myPanel.add(password);
-                    
+
                     // Open popup
-                    int result = JOptionPane.showConfirmDialog(null, myPanel, 
-                             "Start new room", JOptionPane.OK_CANCEL_OPTION);
+                    int result = JOptionPane.showConfirmDialog(null, myPanel,
+                            "Start new room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         // TODO: Write check to ensure room ID is unique and id/password are not null
                         curRoomID = roomID.getText();
                         user.setTextMessage(":START:" + curRoomID + ":");
-                        //This assumes not checking for issues with given room ID
-                        //TODO: Change all GUI to show in new room
+                        setupChat();
                     }
                 }
             }
@@ -216,23 +215,22 @@ public class ChatWindow extends JFrame {
                 if (e.getSource() == btnJoinRoom) {
                     JTextField roomID = new JTextField(10);
                     JTextField password = new JTextField(10);
-              
+
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter room name:"));
                     myPanel.add(roomID);
                     myPanel.add(Box.createHorizontalStrut(5)); // a spacer
                     myPanel.add(new JLabel("Enter room passord:"));
                     myPanel.add(password);
-              
-                    int result = JOptionPane.showConfirmDialog(null, myPanel, 
-                             "Join room", JOptionPane.OK_CANCEL_OPTION);
+
+                    int result = JOptionPane.showConfirmDialog(null, myPanel,
+                            "Join room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         // TODO: Write check to ensure room ID is unique and id/password are not null
                         curRoomID = roomID.getText();
                         user.setTextMessage(":JOIN:" + curRoomID + ":");
-                        // This assumes not checking for issues with given room ID
-                        // TODO: Change all GUI to show in new room
-                    }                   
+                        setupChat();
+                    }
                 }
             }
         });
@@ -285,74 +283,82 @@ public class ChatWindow extends JFrame {
      * Show chatting area instead of splash
      */
     public void setupChat() {
-        if (splashOpen) {
-            // Set chatting username and clear splash components
-            lblChattingToUsername.setText(chosenChatName);
-            pnlChatHistory.remove(lblLogoImage);
-            pnlTypeAndSendMessage.remove(lblWelcomeText);
-            pnlChatArea.setLayout(new BorderLayout());
+        // if (splashOpen) {
+        // splashOpen = false; // Set the splash option off (Chat currently opening)
 
-            // Add chat history box
-            txtareaChatHistory = new JTextArea(30, 48);
-            txtareaChatHistory.setLineWrap(true);
-            txtareaChatHistory.setEditable(false);
-            txtareaChatHistory.setAutoscrolls(true);
-            pnlChatHistory.add(new JScrollPane(txtareaChatHistory, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-            pnlChatArea.add(pnlChatHistory, BorderLayout.CENTER);
+        // Set chatting roomID and clear splash components
+        lblChattingToUsername.setText(curRoomID);
+        pnlChatHistory.remove(lblLogoImage);
+        pnlTypeAndSendMessage.remove(lblWelcomeText);
+        pnlChatArea.setLayout(new BorderLayout());
 
-            // Add message typing and sending area
-            txtMessage = new JTextField(hint);
-            txtMessage.setColumns(42);
+        // Add chat history box
+        txtareaChatHistory = new JTextArea(30, 48);
+        txtareaChatHistory.setLineWrap(true);
+        txtareaChatHistory.setEditable(false);
+        txtareaChatHistory.setAutoscrolls(true);
+        pnlChatHistory.add(new JScrollPane(txtareaChatHistory, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        pnlChatArea.add(pnlChatHistory, BorderLayout.CENTER);
 
-            // Give text message input area hint functionality
-            txtMessage.addFocusListener(new FocusAdapter() {
-                /**
-                 * When the textfield for sending a message gains focus and contains the hint
-                 * message, clear the contents for a smoother typing experience
-                 */
-                @Override
-                public void focusGained(FocusEvent e) {
-                    if (txtMessage.getText().equals(hint)) {
-                        txtMessage.setText(""); // Clear contents
-                    }
+        // Add message typing and sending area
+        txtMessage = new JTextField(hint);
+        txtMessage.setColumns(42);
+
+        // Give text message input area hint functionality
+        txtMessage.addFocusListener(new FocusAdapter() {
+            /**
+             * When the textfield for sending a message gains focus and contains the hint
+             * message, clear the contents for a smoother typing experience
+             */
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (txtMessage.getText().equals(hint)) {
+                    txtMessage.setText(""); // Clear contents
                 }
+            }
 
-                /**
-                 * If the user causes focus on the message dialog to be lost, then the hint must
-                 * return as the text
-                 */
-                @Override
-                public void focusLost(FocusEvent e) {
-                    if (txtMessage.getText().equals(hint) || txtMessage.getText().length() == 0) {
-                        txtMessage.setText(hint);
-                    }
-                }
-            });
-
-            pnlTypeAndSendMessage.add(txtMessage);
-            pnlTypeAndSendMessage.add(btnSend);
-
-            // Send button functionality
-            btnSend.addActionListener(new ActionListener() {
-                /**
-                 * Send the typed contents for messaging to the chat history area.
-                 */
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String messageContents = txtMessage.getText();
+            /**
+             * If the user causes focus on the message dialog to be lost, then the hint must
+             * return as the text
+             */
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (txtMessage.getText().equals(hint) || txtMessage.getText().length() == 0) {
                     txtMessage.setText(hint);
-
-                    // Set the user chat contents for sending to server
-                    user.setTextMessage(":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
                 }
-            });
+            }
+        });
 
-            pnlChatArea.add(pnlTypeAndSendMessage, BorderLayout.SOUTH);
-        } else {
-            // Messaging screen is already setup so just clear the contents
-            clearChatArea();
-        }
+        pnlTypeAndSendMessage.add(txtMessage);
+        pnlTypeAndSendMessage.add(btnSend);
+
+        // Send button functionality
+        btnSend.addActionListener(new ActionListener() {
+            /**
+             * Send the typed contents for messaging to the server to send to each connected
+             * user in room
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String messageContents = txtMessage.getText();
+                txtMessage.setText(hint);
+
+                // Set the user chat contents for sending to server
+                user.setTextMessage(
+                        ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
+            }
+        });
+
+        // Update heading of connected users table
+        tblConnectedUsers.getColumnModel().getColumn(0).setHeaderValue("In room with:");
+        tblConnectedUsers.getTableHeader().repaint();
+
+        pnlChatArea.add(pnlTypeAndSendMessage, BorderLayout.SOUTH);
+        // } else {
+        // Messaging screen is already setup so just clear the contents
+        // clearChatArea();
+        // }
     }
 
     /**
