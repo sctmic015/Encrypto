@@ -16,27 +16,32 @@ public class Room {
     // private String password;
     private Set<ServerThread> sThreads;
 
-    // Initialise a new, empty room
+    /**
+     * Room constructor for initialising new, empty room
+     */
     public Room(String roomID) {
         this.roomID = roomID;
         sThreads = new HashSet<>();
     }
 
-    // Method to add user to room
-    // Should maybe make this boolean for checks
+    // Add user to room
     public void addUser(ServerThread sThread) {
         sThreads.add(sThread);
     }
 
-    // Method to remove user from room
+    // Remove a user from the room
     public void removeUser(ServerThread sThread) {
         sThreads.remove(sThread);
     }
 
+    // Get roomID
     public String getRoomID() {
         return roomID;
     }
 
+    /**
+     * Retrieve usernames of all users in a room
+     */
     public Set<String> getUsernames() {
         Set<String> usernames = new HashSet<>();
         for (ServerThread sThread : sThreads) {
@@ -45,14 +50,13 @@ public class Room {
         return usernames;
     }
 
+    /**
+     * Broadcast the given message to all users the room
+     */
     public void broadcastMessage(String msg) {
         for (ServerThread sThread : sThreads) {
             sThread.sendMsg(msg);
         }
-    }
-
-    public String toString() {
-        return roomID + getUsernames().toString();
     }
 
     // public String getPass(){

@@ -15,6 +15,7 @@ public class ServerThread extends Thread {
     private BufferedReader input;
     private BufferedWriter output;
     private String username;
+    private String curRoomID; 
 
     /**
      * Constructs a server thread, setting up the input and output mechanisms.
@@ -23,6 +24,7 @@ public class ServerThread extends Thread {
     public ServerThread(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
+        curRoomID = null;
 
         // Setup input/output handlers
         try {
@@ -44,6 +46,9 @@ public class ServerThread extends Thread {
         }
     }
 
+    /**
+     * Get username of user
+     */
     public String getUsername() {
         return username;
     }
@@ -95,6 +100,7 @@ public class ServerThread extends Thread {
                 case "LOGOUT":
                     // Logout command received, remove user
                     if (server.removeUser(username)) {
+                        leaveRoom();
                         // Send message to user to shut down connection
                         try {
                             output.write(":SHUTDOWN:");
@@ -142,7 +148,9 @@ public class ServerThread extends Thread {
         return (ID.length() > 0);
     }
 
-    // Method to start new Room
+    /**
+     * Add a new room to the server and add the creator
+     */
     public void startRoom(String roomID) {
         // Make this boolean to check that no room with existing ID exists
         // Check that room name not taken
@@ -150,21 +158,31 @@ public class ServerThread extends Thread {
         joinRoom(roomID);
     }
 
-    // Method to join a Room and inform all users in a room of the event
+    /**
+     * Add the user to the given room and inform all users in that room of the event
+     */
     public void joinRoom(String roomID) {
-        Room room = server.getRoom(roomID);
-        room.addUser(this);
-        msgRoom(roomID, ":UPDATE:" + room.getUsernames());
+        //If a user is already in a room, remove them from the old room
+        if (!(curRoomID == null)){
+            leaveRoom();
+        }
+        Room newRoom = server.getRoom(roomID);
+        newRoom.addUser(this);
+        msgRoom(roomID, ":UPDATE:" + newRoom.getUsernames());
     }
 
-    // Method to leave a room
-    public void leaveRoom(String roomID) {
-        Room room = server.getRoom(roomID);
+    /**
+     * Remove user from their current room and inform all users in that room of the event
+     */
+    public void leaveRoom() {
+        Room room = server.getRoom(curRoomID);
         room.removeUser(this);
-        msgRoom(roomID, ":UPDATE:" + room.getUsernames());
+        msgRoom(curRoomID, ":UPDATE:" + room.getUsernames());
     }
 
-    // Method to broadcast message to all users in a room
+    /**
+     * Broadcast message to all users in a room
+     */
     public void msgRoom(String roomID, String msg) {
         server.getRoom(roomID).broadcastMessage(msg);
     }
