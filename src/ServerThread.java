@@ -84,8 +84,8 @@ public class ServerThread extends Thread {
 
             // Check for control commands, and handles command approriately
             String[] controlCommands = receivedText.split(":", 5);
-            //Debug thing below
-            //server.inform(Arrays.toString(controlCommands));
+            // Debug thing below
+            // server.inform(Arrays.toString(controlCommands));
 
             // Assign the split variables appropriately
             String message = "";
@@ -120,7 +120,14 @@ public class ServerThread extends Thread {
                         break;
                     }
                 case "START":
-                    if (!server.containsRoom(roomID)){
+                    if (!server.containsRoom(roomID)) {
+                        try {
+                            output.write(":VALID:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         startRoom(roomID, pass);
                     } else {
                         // Error setting up room, tell user there was an invalid operation and inform
@@ -140,6 +147,13 @@ public class ServerThread extends Thread {
                     break;
                 case "JOIN":
                     if (server.containsRoom(roomID) && server.getRoom(roomID).getPass().equals(pass)) {
+                        try {
+                            output.write(":VALID:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         joinRoom(roomID);
                     } else {
                         // Error setting up room, tell user there was an invalid operation and inform
@@ -171,10 +185,10 @@ public class ServerThread extends Thread {
     }
 
     // /**
-    //  * Verifies that the supplied ID is valid
-    //  */
+    // * Verifies that the supplied ID is valid
+    // */
     // public boolean validID(String ID) {
-    //     return (ID.length() > 0 && ID.length() <= 10);
+    // return (ID.length() > 0 && ID.length() <= 10);
     // }
 
     /**

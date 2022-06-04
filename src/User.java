@@ -117,11 +117,17 @@ public class User {
     }
 
     /**
-     * Update GUI to be covered with splash
+     * Send message to user that message sent to server is deemed invalid
      */
-    public void updateSplash() {
-        
-        chatWindow.updateSplash();
+    public void warnFailure() {
+        chatWindow.warnFailure();
+    } 
+
+    /**
+     * Sets up the GUI for chatting with new instance
+     */
+    public void setupChat() {
+        chatWindow.setupChat();
     }
 
     /**

@@ -63,7 +63,6 @@ public class ChatWindow extends JFrame {
     private JButton btnSend = new JButton("Send");
 
     // Fields
-    private String chosenChatName = "Welcome!";
     private String hint = "Type a message...";
     private boolean splashOpen = true;
     private User user;
@@ -172,8 +171,8 @@ public class ChatWindow extends JFrame {
                     // Popup design
                     JTextField roomID = new JTextField(10);
                     JTextField password = new JTextField(10);
-                    //TODO Switch to JPasswordField for submission ^
-                    //JPasswordField password = new JPasswordField(10);
+                    // TODO Switch to JPasswordField for submission ^
+                    // JPasswordField password = new JPasswordField(10);
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter new room name:"));
                     myPanel.add(roomID);
@@ -185,12 +184,11 @@ public class ChatWindow extends JFrame {
                     int result = JOptionPane.showConfirmDialog(null, myPanel,
                             "Start new room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
-                        curRoomID = roomID.getText();
                         // If roomID and password are valid strings, send message to server
-                        if (validID(roomID.getText()) && validPass(password.getText())) {
-                            curRoomID = roomID.getText();
-                            user.setTextMessage(":START:" + roomID.getText() + ":" + password.getText() + ":");
-                            setupChat();
+                        curRoomID = roomID.getText();
+                        String pswd = password.getText();
+                        if (validID(curRoomID) && validPass(pswd)) {
+                            user.setTextMessage(":START:" + curRoomID + ":" + pswd + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
                                     "Invalid room ID or password. Please re-enter fields...", "Error",
@@ -208,8 +206,8 @@ public class ChatWindow extends JFrame {
                 if (e.getSource() == btnJoinRoom) {
                     JTextField roomID = new JTextField(10);
                     JTextField password = new JTextField(10);
-                    //TODO Switch to JPasswordField for submission ^
-                    //JPasswordField password = new JPasswordField(10);
+                    // TODO Switch to JPasswordField for submission ^
+                    // JPasswordField password = new JPasswordField(10);
 
                     // Popup design
                     JPanel myPanel = new JPanel();
@@ -224,10 +222,10 @@ public class ChatWindow extends JFrame {
                             "Join room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         // If roomID and password are valid strings, send message to server
-                        if (validID(roomID.getText()) && validPass(password.getText())) {
-                            curRoomID = roomID.getText(); 
-                            user.setTextMessage(":JOIN:" + roomID.getText() + ":" + password.getText() + ":");
-                            setupChat();
+                        curRoomID = roomID.getText();
+                        String pswd = password.getText();
+                        if (validID(curRoomID) && validPass(pswd)) {
+                            user.setTextMessage(":JOIN:" + curRoomID + ":" + pswd + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
                                     "Invalid room ID or password. Please re-enter fields...", "Error",
@@ -262,7 +260,7 @@ public class ChatWindow extends JFrame {
         lblPersonalUsername.setHorizontalAlignment(SwingConstants.CENTER);
         pnlPersonalUsername.setBounds(0, 0, 180, 40);
         pnlPersonalUsername.setBackground(new Color(0x21827e));
-        lblChattingToUsername = new JLabel(chosenChatName); // Default header is not to a user
+        lblChattingToUsername = new JLabel("Welcome!"); // Default header is not to a user
         lblChattingToUsername.setFont(new Font("", Font.BOLD, 14));
         lblChattingToUsername.setHorizontalAlignment(SwingConstants.CENTER);
         pnlChattingToUsername.setBounds(180, 0, 620, 40);
@@ -296,21 +294,13 @@ public class ChatWindow extends JFrame {
         return (attemptedPass.length() >= 0 && attemptedPass.length() <= 10);
     }
 
-
     /**
-     * Setup splash to cover whatever is on screen - basic way of covering up the
-     * GUI when things go wrong (like an invalid room ID entered and server tells
-     * user that they can't enter a room with that ID), then splash just covers the
-     * screen and user will need to use the buttons to retry accessing whatever went
-     * wrong
+     * Tell the user that the message sent to server was deemed a failure
      */
-    public void updateSplash(){
-        // Update connected users table with blank information as per splash
-        tblConnectedUsers.getColumnModel().getColumn(0).setHeaderValue("Encrypto");
-        tblConnectedUsers.getTableHeader().repaint();
-
-        // Update heading to show welcome
-        //lblChattingToUsername
+    public void warnFailure() {
+        JOptionPane.showMessageDialog(null,
+                "Room password incorrect or room ID cannot be joined/started...", "Error",
+                JOptionPane.ERROR_MESSAGE);
     }
 
     /**
@@ -321,7 +311,7 @@ public class ChatWindow extends JFrame {
             splashOpen = false; // Set the splash option off (Chat currently opening)
 
             // Set chatting roomID and clear splash components
-            lblChattingToUsername.setText("ROOM ID: " + curRoomID);
+            lblChattingToUsername.setText("Room ID: " + curRoomID);
             pnlChatHistory.remove(lblLogoImage);
             pnlTypeAndSendMessage.remove(lblWelcomeText);
             pnlChatArea.setLayout(new BorderLayout());
@@ -370,20 +360,21 @@ public class ChatWindow extends JFrame {
             // Send button functionality
             btnSend.addActionListener(new ActionListener() {
                 /**
-                 * If a user is in a room, send typed message to the server to be broadcast to each connected
+                 * If a user is in a room, send typed message to the server to be broadcast to
+                 * each connected
                  * user the room
                  */
                 @Override
-                public void actionPerformed(ActionEvent e) {                    
-                    if (!curRoomID.equals("")){
+                public void actionPerformed(ActionEvent e) {
+                    if (!curRoomID.equals("")) {
                         String messageContents = txtMessage.getText();
                         txtMessage.setText(hint);
 
                         // Set the user chat contents for sending to server
                         user.setTextMessage(
-                            ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
+                                ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
                     }
-                    
+
                 }
             });
 
@@ -409,9 +400,11 @@ public class ChatWindow extends JFrame {
      * Updates the table of connected users in room with the supplied list of names
      */
     public void updateRoomWith(ArrayList<String> connectedUserList) {
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("In room with:", new Vector<>(connectedUserList));
-        tblConnectedUsers.setModel(model);
+        if (connectedUserList.size() != 0) {
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("In room with:", new Vector<>(connectedUserList));
+            tblConnectedUsers.setModel(model);
+        }
     }
 
     /**

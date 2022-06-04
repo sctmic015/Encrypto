@@ -56,9 +56,11 @@ public class UserRead extends Thread {
                         break;
                     } else if (command.equals("UPDATE")) {
                         user.updateConnectedUsers(contents);
+                    } else if (command.equals("VALID")) {
+                        // Server accepts message from user, setup chat instance
+                        user.setupChat();
                     } else if (command.equals("INVALID")) {
-                        // Invalid operation, adjust GUI for this
-                        user.updateSplash();
+                        user.warnFailure();
                     } else if (command.equals("MESSAGE")) {
                         user.setReceivedMessage(contents);
                         user.addNewMessage();
