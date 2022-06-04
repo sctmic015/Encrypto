@@ -117,6 +117,14 @@ public class User {
     }
 
     /**
+     * Update GUI to be covered with splash
+     */
+    public void updateSplash() {
+        
+        chatWindow.updateSplash();
+    }
+
+    /**
      * Start the main chat window with this user
      */
     public void createChatWindow(User user) {

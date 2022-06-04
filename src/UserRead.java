@@ -56,6 +56,9 @@ public class UserRead extends Thread {
                         break;
                     } else if (command.equals("UPDATE")) {
                         user.updateConnectedUsers(contents);
+                    } else if (command.equals("INVALID")) {
+                        // Invalid operation, adjust GUI for this
+                        user.updateSplash();
                     } else if (command.equals("MESSAGE")) {
                         user.setReceivedMessage(contents);
                         user.addNewMessage();

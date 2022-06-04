@@ -182,11 +182,15 @@ public class ChatWindow extends JFrame {
                     int result = JOptionPane.showConfirmDialog(null, myPanel,
                             "Start new room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
-                        // TODO: Write check to ensure room ID is unique and id/password are not null
                         curRoomID = roomID.getText();
-                        lblChattingToUsername.setText(curRoomID);
-                        user.setTextMessage(":START:" + curRoomID + ":");
-                        setupChat();
+                        if (validID(curRoomID)) {
+                            user.setTextMessage(":START:" + curRoomID + ":");
+                            setupChat();
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Invalid room ID. Please enter a new room ID...", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
             }
@@ -212,9 +216,14 @@ public class ChatWindow extends JFrame {
                     if (result == JOptionPane.OK_OPTION) {
                         // TODO: Write check to ensure room ID is unique and id/password are not null
                         curRoomID = roomID.getText();
-                        lblChattingToUsername.setText(curRoomID);
-                        user.setTextMessage(":JOIN:" + curRoomID + ":");
-                        setupChat();
+                        if (validID(curRoomID)) {
+                            user.setTextMessage(":JOIN:" + curRoomID + ":");
+                            setupChat();
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Invalid room ID. Please enter a new room ID...", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
             }
@@ -265,6 +274,29 @@ public class ChatWindow extends JFrame {
     }
 
     /**
+     * Check if room ID is of length between 1 and 10 characters
+     */
+    protected boolean validID(String attemptedID) {
+        return (attemptedID.length() > 0 && attemptedID.length() <= 10);
+    }
+
+    /**
+     * Setup splash to cover whatever is on screen - basic way of covering up the
+     * GUI when things go wrong (like an invalid room ID entered and server tells
+     * user that they can't enter a room with that ID), then splash just covers the
+     * screen and user will need to use the buttons to retry accessing whatever went
+     * wrong
+     */
+    public void updateSplash(){
+        // Update connected users table with blank information as per splash
+        tblConnectedUsers.getColumnModel().getColumn(0).setHeaderValue("Encrypto");
+        tblConnectedUsers.getTableHeader().repaint();
+
+        // Update heading to show welcome
+        //lblChattingToUsername
+    }
+
+    /**
      * Show chatting area instead of splash
      */
     public void setupChat() {
@@ -272,7 +304,7 @@ public class ChatWindow extends JFrame {
             splashOpen = false; // Set the splash option off (Chat currently opening)
 
             // Set chatting roomID and clear splash components
-            lblChattingToUsername.setText(curRoomID);
+            lblChattingToUsername.setText("ROOM ID: " + curRoomID);
             pnlChatHistory.remove(lblLogoImage);
             pnlTypeAndSendMessage.remove(lblWelcomeText);
             pnlChatArea.setLayout(new BorderLayout());

@@ -15,7 +15,7 @@ public class ServerThread extends Thread {
     private BufferedReader input;
     private BufferedWriter output;
     private String username;
-    private String curRoomID; 
+    private String curRoomID;
 
     /**
      * Constructs a server thread, setting up the input and output mechanisms.
@@ -115,17 +115,41 @@ public class ServerThread extends Thread {
                         break;
                     }
                 case "START":
-                    if (validID(roomID)) {
+                    if (validID(roomID) && !server.containsRoom(roomID)) {
                         startRoom(roomID);
                     } else {
-                        System.err.println("Invalid roomID for starting room...");
+                        // Error setting up room, tell user there was an invalid operation and inform
+                        // the server of the mishap
+                        try {
+                            output.write(":INVALID:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        leaveCurRoom();
+                        server.inform(username + " tried to start room with ID = " + roomID
+                                + ". ID is not valid or already in use so room was not started...");
                     }
                     break;
                 case "JOIN":
                     if (validID(roomID) && server.containsRoom(roomID)) {
                         joinRoom(roomID);
                     } else {
-                        System.err.println("Invalid roomID for joining room...");
+                        // Error setting up room, tell user there was an invalid operation and inform
+                        // the server of the mishap
+                        try {
+                            output.write(":INVALID:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        leaveCurRoom();
+                        server.inform(username + " tried to start room with ID = " + roomID
+                                + ". ID is not valid or does not exist so room was not joined...");
                     }
                     break;
                 case "MESSAGE":
@@ -145,7 +169,7 @@ public class ServerThread extends Thread {
      * Verifies that the supplied ID is valid
      */
     public boolean validID(String ID) {
-        return (ID.length() > 0);
+        return (ID.length() > 0 && ID.length() <= 10);
     }
 
     /**
@@ -163,7 +187,7 @@ public class ServerThread extends Thread {
      * Add the user to the given room and inform all users in that room of the event
      */
     public void joinRoom(String roomID) {
-        //If a user is already in a room, remove them from the old room
+        // If a user is already in a room, remove them from the old room
         leaveCurRoom();
         Room newRoom = server.getRoom(roomID);
         newRoom.addUser(this);
@@ -172,10 +196,11 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Remove user from their current room and inform all users in that room of the event
+     * Remove user from their current room and inform all users in that room of the
+     * event
      */
     public void leaveCurRoom() {
-        if (!(curRoomID == null)){
+        if (!(curRoomID == null)) {
             Room room = server.getRoom(curRoomID);
             room.removeUser(this);
             msgRoom(curRoomID, ":UPDATE:" + room.getUsernames());
