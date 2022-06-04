@@ -56,8 +56,7 @@ public class UserRead extends Thread {
                         case "SHUTDOWN":
                             break;
                         case "UPDATE":
-                            user.setReceivedMessage(contents);
-                            user.updateRoom();
+                            user.updateConnectedUsers(contents);
                             break;
                         case "MESSAGE":
                             user.setReceivedMessage(contents);

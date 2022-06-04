@@ -8,6 +8,8 @@
 
 import java.awt.EventQueue;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.io.IOException;
 
 public class User {
@@ -18,9 +20,10 @@ public class User {
     private volatile boolean connected = false;
     private UserRead userRead;
     private UserWrite userWrite;
-    private String txtMessage = "";
-    private String receivedMessage = "";
+    private volatile String txtMessage = "";
+    private volatile String receivedMessage = "";
     private ChatWindow chatWindow;
+    private volatile ArrayList<String> connectedUsers;
 
     /**
      * Constructor to connect user to server
@@ -42,6 +45,21 @@ public class User {
      */
     public String getUsername() {
         return this.username;
+    }
+
+    /**
+     * Updates the list of connected users 
+     */
+    // TODO: and their associated public keys
+    public void updateConnectedUsers(String connectedList) {
+        // Remove the opening and closing brace
+        connectedList = connectedList.substring(1, connectedList.length()-1);
+
+        // Split the list and store in a list data structure
+        connectedUsers = new ArrayList<>(Arrays.asList(connectedList.split(", ")));
+
+        // Pass the updated list to the GUI
+        updateRoomListOfConnectedUsers();
     }
 
     /**
@@ -180,14 +198,11 @@ public class User {
 
     // Display an incoming message to the GUI chat area
     public void addNewMessage(){
-        //TODO: Show the new message (stored in receivedMessage) on to GUI
         chatWindow.updateTxtChat(receivedMessage);
     }
 
     // Update GUI to show new list of room users
-    public void updateRoom(){
-        //TODO: Show the new list of users in the room (stored in 
-        //string array form in receivedMessage, e.g. "[Dave, Brad, Mike]"")
-        
+    public void updateRoomListOfConnectedUsers(){
+        chatWindow.updateRoomWith(connectedUsers);
     }
 }
