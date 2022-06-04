@@ -64,7 +64,7 @@ public class ChatWindow extends JFrame {
 
     // Fields
     private String hint = "Type a message...";
-    private boolean splashOpen = true;
+    private volatile boolean splashOpen = true;
     private User user;
     private String curRoomID = "";
 
