@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -171,6 +172,8 @@ public class ChatWindow extends JFrame {
                     // Popup design
                     JTextField roomID = new JTextField(10);
                     JTextField password = new JTextField(10);
+                    //TODO Switch to JPasswordField for submission ^
+                    //JPasswordField password = new JPasswordField(10);
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter new room name:"));
                     myPanel.add(roomID);
@@ -183,12 +186,14 @@ public class ChatWindow extends JFrame {
                             "Start new room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         curRoomID = roomID.getText();
-                        if (validID(curRoomID)) {
-                            user.setTextMessage(":START:" + curRoomID + ":");
+                        // If roomID and password are valid strings, send message to server
+                        if (validID(roomID.getText()) && validPass(password.getText())) {
+                            curRoomID = roomID.getText();
+                            user.setTextMessage(":START:" + roomID.getText() + ":" + password.getText() + ":");
                             setupChat();
                         } else {
                             JOptionPane.showMessageDialog(null,
-                                    "Invalid room ID. Please enter a new room ID...", "Error",
+                                    "Invalid room ID or password. Please re-enter fields...", "Error",
                                     JOptionPane.ERROR_MESSAGE);
                         }
                     }
@@ -203,7 +208,10 @@ public class ChatWindow extends JFrame {
                 if (e.getSource() == btnJoinRoom) {
                     JTextField roomID = new JTextField(10);
                     JTextField password = new JTextField(10);
+                    //TODO Switch to JPasswordField for submission ^
+                    //JPasswordField password = new JPasswordField(10);
 
+                    // Popup design
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter room name:"));
                     myPanel.add(roomID);
@@ -211,17 +219,18 @@ public class ChatWindow extends JFrame {
                     myPanel.add(new JLabel("Enter room passord:"));
                     myPanel.add(password);
 
+                    // Open popup
                     int result = JOptionPane.showConfirmDialog(null, myPanel,
                             "Join room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
-                        // TODO: Write check to ensure room ID is unique and id/password are not null
-                        curRoomID = roomID.getText();
-                        if (validID(curRoomID)) {
-                            user.setTextMessage(":JOIN:" + curRoomID + ":");
+                        // If roomID and password are valid strings, send message to server
+                        if (validID(roomID.getText()) && validPass(password.getText())) {
+                            curRoomID = roomID.getText(); 
+                            user.setTextMessage(":JOIN:" + roomID.getText() + ":" + password.getText() + ":");
                             setupChat();
                         } else {
                             JOptionPane.showMessageDialog(null,
-                                    "Invalid room ID. Please enter a new room ID...", "Error",
+                                    "Invalid room ID or password. Please re-enter fields...", "Error",
                                     JOptionPane.ERROR_MESSAGE);
                         }
                     }
@@ -279,6 +288,14 @@ public class ChatWindow extends JFrame {
     protected boolean validID(String attemptedID) {
         return (attemptedID.length() > 0 && attemptedID.length() <= 10);
     }
+
+    /**
+     * Check if password is of length between 0 and 10 characters
+     */
+    protected boolean validPass(String attemptedPass) {
+        return (attemptedPass.length() >= 0 && attemptedPass.length() <= 10);
+    }
+
 
     /**
      * Setup splash to cover whatever is on screen - basic way of covering up the
@@ -353,17 +370,20 @@ public class ChatWindow extends JFrame {
             // Send button functionality
             btnSend.addActionListener(new ActionListener() {
                 /**
-                 * Send the typed contents for messaging to the server to send to each connected
-                 * user in room
+                 * If a user is in a room, send typed message to the server to be broadcast to each connected
+                 * user the room
                  */
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    String messageContents = txtMessage.getText();
-                    txtMessage.setText(hint);
+                public void actionPerformed(ActionEvent e) {                    
+                    if (!curRoomID.equals("")){
+                        String messageContents = txtMessage.getText();
+                        txtMessage.setText(hint);
 
-                    // Set the user chat contents for sending to server
-                    user.setTextMessage(
+                        // Set the user chat contents for sending to server
+                        user.setTextMessage(
                             ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
+                    }
+                    
                 }
             });
 

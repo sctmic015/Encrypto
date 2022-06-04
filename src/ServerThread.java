@@ -83,15 +83,20 @@ public class ServerThread extends Thread {
             }
 
             // Check for control commands, and handles command approriately
-            String[] controlCommands = receivedText.split(":", 4);
+            String[] controlCommands = receivedText.split(":", 5);
+            //Debug thing below
+            //server.inform(Arrays.toString(controlCommands));
+
             // Assign the split variables appropriately
             String message = "";
             String command = "";
             String roomID = "";
+            String pass = "";
             if (controlCommands.length > 1) {
                 command = controlCommands[1]; // Item zero is throwaway
-                if (controlCommands.length > 2) {
+                if (controlCommands.length > 3) {
                     roomID = controlCommands[2];
+                    pass = controlCommands[3];
                 }
                 message = controlCommands[controlCommands.length - 1];
             }
@@ -115,8 +120,8 @@ public class ServerThread extends Thread {
                         break;
                     }
                 case "START":
-                    if (validID(roomID) && !server.containsRoom(roomID)) {
-                        startRoom(roomID);
+                    if (!server.containsRoom(roomID)){
+                        startRoom(roomID, pass);
                     } else {
                         // Error setting up room, tell user there was an invalid operation and inform
                         // the server of the mishap
@@ -130,11 +135,11 @@ public class ServerThread extends Thread {
 
                         leaveCurRoom();
                         server.inform(username + " tried to start room with ID = " + roomID
-                                + ". ID is not valid or already in use so room was not started...");
+                                + ". ID is already in use so room was not started...");
                     }
                     break;
                 case "JOIN":
-                    if (validID(roomID) && server.containsRoom(roomID)) {
+                    if (server.containsRoom(roomID) && server.getRoom(roomID).getPass().equals(pass)) {
                         joinRoom(roomID);
                     } else {
                         // Error setting up room, tell user there was an invalid operation and inform
@@ -148,12 +153,12 @@ public class ServerThread extends Thread {
                         }
 
                         leaveCurRoom();
-                        server.inform(username + " tried to start room with ID = " + roomID
-                                + ". ID is not valid or does not exist so room was not joined...");
+                        server.inform(username + " tried to join room with ID = " + roomID
+                                + ". Either the room does not exist or the password was incorrect, so room was not joined...");
                     }
                     break;
                 case "MESSAGE":
-                    if (validID(roomID) && server.containsRoom(roomID)) {
+                    if (server.containsRoom(roomID)) {
                         msgRoom(roomID, ":MESSAGE:" + message);
                     } else {
                         System.err.println("Invalid roomID to send message...");
@@ -165,20 +170,20 @@ public class ServerThread extends Thread {
         }
     }
 
-    /**
-     * Verifies that the supplied ID is valid
-     */
-    public boolean validID(String ID) {
-        return (ID.length() > 0 && ID.length() <= 10);
-    }
+    // /**
+    //  * Verifies that the supplied ID is valid
+    //  */
+    // public boolean validID(String ID) {
+    //     return (ID.length() > 0 && ID.length() <= 10);
+    // }
 
     /**
      * Add a new room to the server and add the creator
      */
-    public void startRoom(String roomID) {
+    public void startRoom(String roomID, String password) {
         // Make this boolean to check that no room with existing ID exists
         // Check that room name not taken
-        server.addRoom(new Room(roomID));
+        server.addRoom(new Room(roomID, password));
         joinRoom(roomID);
         curRoomID = roomID;
     }
