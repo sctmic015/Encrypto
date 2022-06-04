@@ -108,18 +108,31 @@ public class ServerThread extends Thread {
                         break;
                     }
                 case "START":
-                    startRoom(roomID);
+                    if (validID(roomID)){
+                        startRoom(roomID);
+                    }
                     break;
                 case "JOIN":
-                    joinRoom(roomID);
+                    if (validID(roomID)){
+                        joinRoom(roomID);
+                    }
                     break;
                 case "MESSAGE":
-                    msgRoom(roomID, message);
+                    if (validID(roomID)){
+                        msgRoom(roomID, message);
+                    }
                     break;
                 default:
                     break;
             }
         }
+    }
+
+    /**
+     * Verifies that the supplied ID is valid
+     */
+    public boolean validID(String ID) {
+        return (ID.length() > 0);
     }
 
     // Method to start new Room
