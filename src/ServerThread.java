@@ -100,9 +100,7 @@ public class ServerThread extends Thread {
                 case "LOGOUT":
                     // Logout command received, remove user
                     if (server.removeUser(username)) {
-                        if (!(curRoomID == null)){
-                            leaveRoom();
-                        }
+                        leaveCurRoom();
                         server.inform("Logout successfull, room should be notified");
                         // Send message to user to shut down connection
                         try {
@@ -159,6 +157,7 @@ public class ServerThread extends Thread {
         // Check that room name not taken
         server.addRoom(new Room(roomID));
         joinRoom(roomID);
+        curRoomID = roomID;
     }
 
     /**
@@ -166,21 +165,22 @@ public class ServerThread extends Thread {
      */
     public void joinRoom(String roomID) {
         //If a user is already in a room, remove them from the old room
-        if (!(curRoomID == null)){
-            leaveRoom();
-        }
+        leaveCurRoom();
         Room newRoom = server.getRoom(roomID);
         newRoom.addUser(this);
         msgRoom(roomID, ":UPDATE:" + newRoom.getUsernames());
+        curRoomID = roomID;
     }
 
     /**
      * Remove user from their current room and inform all users in that room of the event
      */
-    public void leaveRoom() {
-        Room room = server.getRoom(curRoomID);
-        room.removeUser(this);
-        msgRoom(curRoomID, ":UPDATE:" + room.getUsernames());
+    public void leaveCurRoom() {
+        if (!(curRoomID == null)){
+            Room room = server.getRoom(curRoomID);
+            room.removeUser(this);
+            msgRoom(curRoomID, ":UPDATE:" + room.getUsernames());
+        }
     }
 
     /**
