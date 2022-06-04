@@ -40,16 +40,34 @@ public class UserRead extends Thread {
             // Receive the text from server
             try {
                 if ((line = input.readLine()) != null) {
-                    // Check if shutdown message has been called, then break
-                    // Because readline is a blocking call, we need to receive a message to allow
-                    // this thread to safely close
-                    if (line.equals(":SHUTDOWN:")) {
-                        break;
+                    
+                    // Using control commands, handle incoming message appropriately
+                    String[] controlCommands = line.split(":", 4);
+                    // Assign the split variables appropriately
+                    String command = "";
+                    String contents = "";           //either msg or username set
+                    command = controlCommands[1];   // Item zero is throwaway
+                    contents = controlCommands[2];
+
+                    switch (command) {
+                        // If shutdown message has been called, then break
+                        // Because readline is a blocking call, we need to receive a message to allow
+                        // this thread to safely close
+                        case "SHUTDOWN":
+                            break;
+                        case "UPDATE":
+                            user.setReceivedMessage(contents);
+                            user.updateRoom();
+                            break;
+                        case "MESSAGE":
+                            user.setReceivedMessage(contents);
+                            user.addNewMessage();
+                            break;
+                        default:
+                            break;
                     }
-                    // Regular message so set user's received message to the read line
-                    user.setReceivedMessage(line);
-                    user.inform(user.getReceivedMessage());
                 }
+            
             } catch (IOException e) {
                 e.printStackTrace();
             }

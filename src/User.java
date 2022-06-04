@@ -177,11 +177,15 @@ public class User {
         });
     }
 
-    // public Room getCurRoom(){
-    // return curRoom;
-    // }
+    // Display an incoming message to the GUI chat area
+    public void addNewMessage(){
+        //TODO: Show the new message (stored in receivedMessage) on to GUI
+    }
 
-    // public void setCurRoom(Room r){
-    // curRoom = r;
-    // }
+    // Update GUI to show new list of room users
+    public void updateRoom(){
+        //TODO: Show the new list of users in the room (stored in 
+        //string array form in receivedMessage, e.g. "[Dave, Brad, Mike]"")
+
+    }
 }

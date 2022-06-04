@@ -48,6 +48,7 @@ public class ServerThread extends Thread {
         return username;
     }
 
+    // PGP starts here
     public void sendMsg(String msg) {
         try {
             output.write(msg);
@@ -114,7 +115,7 @@ public class ServerThread extends Thread {
                     joinRoom(roomID);
                     break;
                 case "MESSAGE":
-                    msgRoom(roomID, message);
+                    msgRoom(roomID, ":MESSAGE:" + message);
                     break;
                 default:
                     break;
@@ -128,17 +129,20 @@ public class ServerThread extends Thread {
         // Check that room name not taken
         server.addRoom(new Room(roomID));
         joinRoom(roomID);
-        // server.inform(server.getRoom(roomID).toString());
     }
 
-    // Method to join a Room
+    // Method to join a Room and inform all users in a room of the event
     public void joinRoom(String roomID) {
-        server.getRoom(roomID).addUser(this);
+        Room room = server.getRoom(roomID);
+        room.addUser(this);
+        msgRoom(roomID, ":UPDATE:" + room.getUsernames());
     }
 
     // Method to leave a room
     public void leaveRoom(String roomID) {
-        server.getRoom(roomID).removeUser(this);
+        Room room = server.getRoom(roomID);
+        room.removeUser(this);
+        msgRoom(roomID, ":UPDATE:" + room.getUsernames());
     }
 
     // Method to broadcast message to all users in a room
