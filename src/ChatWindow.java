@@ -19,8 +19,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Vector;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -365,7 +368,16 @@ public class ChatWindow extends JFrame {
      * Populates the text chat history area with the received message
      */
     public void updateTxtChat(String message) {
-        txtareaChatHistory.append(message);
+        txtareaChatHistory.append(message + "\n");
+    }
+
+    /**
+     * Updates the table of connected users in room with the supplied list of names
+     */
+    public void updateRoomWith(ArrayList<String> connectedUserList) {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("In room with:", new Vector<>(connectedUserList));
+        tblConnectedUsers.setModel(model);
     }
 
     /**

@@ -88,7 +88,7 @@ public class ServerThread extends Thread {
             String message = "";
             String command = "";
             String roomID = "";
-            if (controlCommands.length > 0) {
+            if (controlCommands.length > 1) {
                 command = controlCommands[1]; // Item zero is throwaway
                 if (controlCommands.length > 2) {
                     roomID = controlCommands[2];
