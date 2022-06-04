@@ -62,7 +62,7 @@ public class ChatWindow extends JFrame {
     private String chosenChatName = "Welcome!";
     private String personalUsername;
     private String hint = "Type a message...";
-    //private boolean splashOpen = true;
+    // private boolean splashOpen = true;
     private User user;
     private String curRoomID = "";
 
@@ -124,7 +124,7 @@ public class ChatWindow extends JFrame {
         pnlConnectedUsers.setLayout(new BorderLayout());
         pnlConnectedUsers.add(pnlRoomButtons, BorderLayout.SOUTH);
 
-        String[] colName = { "Not in a room..." };
+        String[] colName = { "Encrypto" };
         Object[][] connectedUsers = {};
 
         // Create table without editing permissions
@@ -283,78 +283,82 @@ public class ChatWindow extends JFrame {
      * Show chatting area instead of splash
      */
     public void setupChat() {
-        //if (splashOpen) {
-            //splashOpen = false; // Set the splash option off (Chat currently opening)
+        // if (splashOpen) {
+        // splashOpen = false; // Set the splash option off (Chat currently opening)
 
-            // Set chatting roomID and clear splash components
-            lblChattingToUsername.setText(curRoomID);
-            pnlChatHistory.remove(lblLogoImage);
-            pnlTypeAndSendMessage.remove(lblWelcomeText);
-            pnlChatArea.setLayout(new BorderLayout());
+        // Set chatting roomID and clear splash components
+        lblChattingToUsername.setText(curRoomID);
+        pnlChatHistory.remove(lblLogoImage);
+        pnlTypeAndSendMessage.remove(lblWelcomeText);
+        pnlChatArea.setLayout(new BorderLayout());
 
-            // Add chat history box
-            txtareaChatHistory = new JTextArea(30, 48);
-            txtareaChatHistory.setLineWrap(true);
-            txtareaChatHistory.setEditable(false);
-            txtareaChatHistory.setAutoscrolls(true);
-            pnlChatHistory.add(new JScrollPane(txtareaChatHistory, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-            pnlChatArea.add(pnlChatHistory, BorderLayout.CENTER);
+        // Add chat history box
+        txtareaChatHistory = new JTextArea(30, 48);
+        txtareaChatHistory.setLineWrap(true);
+        txtareaChatHistory.setEditable(false);
+        txtareaChatHistory.setAutoscrolls(true);
+        pnlChatHistory.add(new JScrollPane(txtareaChatHistory, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        pnlChatArea.add(pnlChatHistory, BorderLayout.CENTER);
 
-            // Add message typing and sending area
-            txtMessage = new JTextField(hint);
-            txtMessage.setColumns(42);
+        // Add message typing and sending area
+        txtMessage = new JTextField(hint);
+        txtMessage.setColumns(42);
 
-            // Give text message input area hint functionality
-            txtMessage.addFocusListener(new FocusAdapter() {
-                /**
-                 * When the textfield for sending a message gains focus and contains the hint
-                 * message, clear the contents for a smoother typing experience
-                 */
-                @Override
-                public void focusGained(FocusEvent e) {
-                    if (txtMessage.getText().equals(hint)) {
-                        txtMessage.setText(""); // Clear contents
-                    }
+        // Give text message input area hint functionality
+        txtMessage.addFocusListener(new FocusAdapter() {
+            /**
+             * When the textfield for sending a message gains focus and contains the hint
+             * message, clear the contents for a smoother typing experience
+             */
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (txtMessage.getText().equals(hint)) {
+                    txtMessage.setText(""); // Clear contents
                 }
+            }
 
-                /**
-                 * If the user causes focus on the message dialog to be lost, then the hint must
-                 * return as the text
-                 */
-                @Override
-                public void focusLost(FocusEvent e) {
-                    if (txtMessage.getText().equals(hint) || txtMessage.getText().length() == 0) {
-                        txtMessage.setText(hint);
-                    }
-                }
-            });
-
-            pnlTypeAndSendMessage.add(txtMessage);
-            pnlTypeAndSendMessage.add(btnSend);
-
-            // Send button functionality
-            btnSend.addActionListener(new ActionListener() {
-                /**
-                 * Send the typed contents for messaging to the server to send to each connected
-                 * user in room
-                 */
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String messageContents = txtMessage.getText();
+            /**
+             * If the user causes focus on the message dialog to be lost, then the hint must
+             * return as the text
+             */
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (txtMessage.getText().equals(hint) || txtMessage.getText().length() == 0) {
                     txtMessage.setText(hint);
-
-                    // Set the user chat contents for sending to server
-                    user.setTextMessage(
-                            ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
                 }
-            });
+            }
+        });
 
-            pnlChatArea.add(pnlTypeAndSendMessage, BorderLayout.SOUTH);
-        //} else {
-            // Messaging screen is already setup so just clear the contents
-        //    clearChatArea();
-        //}
+        pnlTypeAndSendMessage.add(txtMessage);
+        pnlTypeAndSendMessage.add(btnSend);
+
+        // Send button functionality
+        btnSend.addActionListener(new ActionListener() {
+            /**
+             * Send the typed contents for messaging to the server to send to each connected
+             * user in room
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String messageContents = txtMessage.getText();
+                txtMessage.setText(hint);
+
+                // Set the user chat contents for sending to server
+                user.setTextMessage(
+                        ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
+            }
+        });
+
+        // Update heading of connected users table
+        tblConnectedUsers.getColumnModel().getColumn(0).setHeaderValue("In room with:");
+        tblConnectedUsers.getTableHeader().repaint();
+
+        pnlChatArea.add(pnlTypeAndSendMessage, BorderLayout.SOUTH);
+        // } else {
+        // Messaging screen is already setup so just clear the contents
+        // clearChatArea();
+        // }
     }
 
     /**
