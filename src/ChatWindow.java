@@ -362,6 +362,13 @@ public class ChatWindow extends JFrame {
     }
 
     /**
+     * Populates the text chat history area with the received message
+     */
+    public void updateTxtChat(String message) {
+        txtareaChatHistory.append(message);
+    }
+
+    /**
      * Clear the components used in the chat area
      */
     public void clearChatArea() {

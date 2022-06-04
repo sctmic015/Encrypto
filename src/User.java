@@ -20,6 +20,7 @@ public class User {
     private UserWrite userWrite;
     private String txtMessage = "";
     private String receivedMessage = "";
+    private ChatWindow chatWindow;
 
     /**
      * Constructor to connect user to server
@@ -99,8 +100,8 @@ public class User {
     /**
      * Start the main chat window with this user
      */
-    public ChatWindow createChatWindow(User user) {
-        return (new ChatWindow(user));
+    public void createChatWindow(User user) {
+        chatWindow = new ChatWindow(user);
     }
 
     /**
