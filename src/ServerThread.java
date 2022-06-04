@@ -100,7 +100,10 @@ public class ServerThread extends Thread {
                 case "LOGOUT":
                     // Logout command received, remove user
                     if (server.removeUser(username)) {
-                        leaveRoom();
+                        if (!(curRoomID == null)){
+                            leaveRoom();
+                        }
+                        server.inform("Logout successfull, room should be notified");
                         // Send message to user to shut down connection
                         try {
                             output.write(":SHUTDOWN:");
