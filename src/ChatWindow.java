@@ -368,7 +368,7 @@ public class ChatWindow extends JFrame {
      * Populates the text chat history area with the received message
      */
     public void updateTxtChat(String message) {
-        txtareaChatHistory.append(message);
+        txtareaChatHistory.append(message + "\n");
     }
 
     /**
