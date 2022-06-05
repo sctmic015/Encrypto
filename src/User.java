@@ -8,6 +8,8 @@
 
 import java.awt.EventQueue;
 import java.net.*;
+import java.security.*;
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.IOException;
@@ -24,13 +26,15 @@ public class User {
     private volatile String receivedMessage = "";
     private ChatWindow chatWindow;
     private volatile ArrayList<String> connectedUsers;
+    private KeyPair keyPair;
 
     /**
      * Constructor to connect user to server
      */
-    public User(String host, int port) {
+    public User(String host, int port) throws GeneralSecurityException {
         this.host = host;
         this.port = port;
+        this.keyPair = userKey();
     }
 
     /**
@@ -160,6 +164,19 @@ public class User {
         System.out.println(text);
     }
 
+    private KeyPair userKey() throws GeneralSecurityException {
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+        KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
+
+        kpGen.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
+
+        return kpGen.generateKeyPair();
+    }
+
+    public PublicKey getPublicKey(){
+        return this.keyPair.getPublic();
+    }
 
 
     /**
@@ -183,7 +200,7 @@ public class User {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws GeneralSecurityException {
         String wantedHost = "localhost";
         int wantedPort = 4444;
 

@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.awt.BorderLayout;
@@ -244,8 +245,13 @@ public class ChatWindow extends JFrame {
                     // Pass message to server to logout user
                     user.setTextMessage(":LOGOUT:");
                     dispose();
-                    if (user.disconnect()) {
-                        new LoginWindow(new User(user.getHost(), user.getPort()));
+                    try {
+                        if (user.disconnect()) {
+                            new LoginWindow(new User(user.getHost(), user.getPort()));
+                        }
+                    }
+                    catch(GeneralSecurityException exception){
+                        System.out.println("Whoopsie");
                     }
                 }
             }

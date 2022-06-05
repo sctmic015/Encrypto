@@ -6,22 +6,28 @@
  * @version May 2022
  */
 
+import org.bouncycastle.operator.OperatorCreationException;
+
 import java.net.*;
 import java.io.*;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
 
 public class ServerThread extends Thread {
     private Socket socket;
     private Server server;
     private BufferedReader input;
     private BufferedWriter output;
+    private ObjectInput userPublicKeyInput;
     private String username;
     private String curRoomID;
+    private PublicKey userPublicKey;
 
     /**
      * Constructs a server thread, setting up the input and output mechanisms.
      * User is also attempted to be added and connection is closed if this fails.
      */
-    public ServerThread(Socket socket, Server server) {
+    public ServerThread(Socket socket, Server server) throws CertificateException, OperatorCreationException {
         this.socket = socket;
         this.server = server;
         curRoomID = null;
@@ -30,10 +36,17 @@ public class ServerThread extends Thread {
         try {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            userPublicKeyInput = new ObjectInputStream(socket.getInputStream());
+
 
             // ServerThread is created on login attempt so username will be sent. Ask the
             // server to add this username
             username = input.readLine();
+            //System.out.println(username);
+            userPublicKey = (PublicKey) userPublicKeyInput.readObject();
+            server.addUserCertificates(username, "SHA256WithRSA", userPublicKey);
+            server.printUserCertificates();
+            //System.out.println(userPublicKey);
             if (!server.addUser(username)) {
                 // socket.close(); // Close connection if user can't be added
             } else {
@@ -41,7 +54,7 @@ public class ServerThread extends Thread {
                 // output this news to console
                 server.inform(username + " is connected!");
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

@@ -11,6 +11,7 @@ import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.cert.CertIOException;
+import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.cert.X509v1CertificateBuilder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
@@ -46,6 +47,8 @@ public class Server {
     private X509Certificate trustAnchorCert;
     private X509Certificate serverCertificate;
     private KeyPair keyPair;
+    private ArrayList<X509Certificate> userCertificates = new ArrayList<X509Certificate>();
+    static int count = 0;
 
     /**
      * Server constructor with port number supplied
@@ -58,7 +61,10 @@ public class Server {
         this.serverCertificate = createCACertificate(trustAnchorCert, trustAnchorCertKey.getPrivate(), "SHA256WithRSA",
                 keyPair.getPublic(), 0);
     }
-    
+
+    public X509Certificate getServerCertificate(){
+        return serverCertificate;
+    }
 
     /**
      * Check if room with ID supplied exists
@@ -125,9 +131,10 @@ public class Server {
 
         return new Date((secs + (hoursInFuture * 60 * 60)) * 1000);
     }
-    public static synchronized BigInteger calculateSerialNumber(int serialNumberBase)
+    public static synchronized BigInteger calculateSerialNumber()
     {
-        return BigInteger.valueOf(serialNumberBase++);
+        count += 1;
+        return BigInteger.valueOf(count);
     }
 
     private X509Certificate createCACertificate(
@@ -141,7 +148,7 @@ public class Server {
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
                 signerCert.getSubjectX500Principal(),
-                calculateSerialNumber(1),
+                calculateSerialNumber(),
                 calculateDate(0),
                 calculateDate(24 * 60),
                 subject,
@@ -177,7 +184,7 @@ public class Server {
 
         X509v1CertificateBuilder certBldr = new JcaX509v1CertificateBuilder(
                 name,
-                calculateSerialNumber(0),
+                calculateSerialNumber(),
                 calculateDate(0),
                 calculateDate(24 * 365),
                 name,
@@ -194,10 +201,57 @@ public class Server {
         return converter.getCertificate(certBldr.build(signer));
     }
 
+    public X509Certificate createEndEntity(String username,
+            String sigAlg, PublicKey certKey)
+            throws CertIOException, OperatorCreationException, CertificateException
+    {
+        X509Certificate signerCert = getServerCertificate();
+        PrivateKey signerKey = keyPair.getPrivate();
+        X500Principal subject = new X500Principal("CN=" + username);
+
+
+        X509v3CertificateBuilder  certBldr = new JcaX509v3CertificateBuilder(
+                signerCert.getSubjectX500Principal(),
+                calculateSerialNumber(),
+                calculateDate(0),
+                calculateDate(24 * 31),
+                subject,
+                certKey);
+
+
+        certBldr.addExtension(Extension.basicConstraints,
+                        true, new BasicConstraints(false))
+                .addExtension(Extension.keyUsage,
+                        true, new KeyUsage(KeyUsage.digitalSignature));
+
+
+        ContentSigner signer = new JcaContentSignerBuilder(sigAlg)
+                .setProvider("BC").build(signerKey);
+
+
+        JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
+
+
+        return converter.getCertificate(certBldr.build(signer));
+    }
+
+    public void addUserCertificates(String userName,
+            String sigAlg, PublicKey certKey)
+            throws CertIOException, OperatorCreationException, CertificateException {
+        X509Certificate userCertificate = createEndEntity(userName, sigAlg, certKey);
+        userCertificates.add(userCertificate);
+    }
+
+    public void printUserCertificates(){
+        for (int i = 0; i < userCertificates.size(); i ++){
+            System.out.println(userCertificates.get(i));
+            System.out.println(i);
+        }
+    }
     /**
      * Starts server listening for connections
      */
-    private void beginServer() {
+    private void beginServer() throws CertificateException, OperatorCreationException {
         try (ServerSocket ss = new ServerSocket(port)) {
             // Inform console that server successfully started
             System.out.println("Encrypto server started on port: " + port);
