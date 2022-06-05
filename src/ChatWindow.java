@@ -387,6 +387,9 @@ public class ChatWindow extends JFrame {
             // Messaging screen is already setup so just clear the contents
             clearChatArea();
         }
+
+        repaint();
+        revalidate();
     }
 
     /**
