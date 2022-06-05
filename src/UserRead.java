@@ -57,17 +57,13 @@ public class UserRead extends Thread {
                     if ((certificate = (X509Certificate) CertInput.readObject()) != null) {
                         user.addCertificate(certificate);
                         System.out.println(certificate);
-                        //CertInput.close();
-                        //Thread.sleep(200);
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            } 
             // Receive the text from server
             try {
                 if ((line = input.readLine()) != null) {
