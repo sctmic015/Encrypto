@@ -8,22 +8,29 @@
 
 import java.net.*;
 import java.io.*;
+import java.security.cert.X509Certificate;
 
 public class UserRead extends Thread {
     private Socket socket;
     private User user;
     private BufferedReader input;
+    private X509Certificate userCertificate;
+    private ObjectInput CertInput;
 
     /**
      * Constructor
      */
-    public UserRead(Socket socket, User user) {
+    public UserRead(Socket socket, User user) throws ClassNotFoundException {
         this.socket = socket;
         this.user = user;
 
         // Setup the input handler
         try {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            CertInput = new ObjectInputStream(socket.getInputStream());
+            X509Certificate userCertificate = (X509Certificate) CertInput.readObject();
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
