@@ -96,15 +96,20 @@ public class ServerThread extends Thread {
             }
 
             // Check for control commands, and handles command approriately
-            String[] controlCommands = receivedText.split(":", 4);
+            String[] controlCommands = receivedText.split(":", 5);
+            // Debug thing below
+            // server.inform(Arrays.toString(controlCommands));
+
             // Assign the split variables appropriately
             String message = "";
             String command = "";
             String roomID = "";
+            String pass = "";
             if (controlCommands.length > 1) {
                 command = controlCommands[1]; // Item zero is throwaway
-                if (controlCommands.length > 2) {
+                if (controlCommands.length > 3) {
                     roomID = controlCommands[2];
+                    pass = controlCommands[3];
                 }
                 message = controlCommands[controlCommands.length - 1];
             }
@@ -128,21 +133,59 @@ public class ServerThread extends Thread {
                         break;
                     }
                 case "START":
-                    if (validID(roomID)) {
-                        startRoom(roomID);
+                    if (!server.containsRoom(roomID)) {
+                        try {
+                            output.write(":VALID:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        startRoom(roomID, pass);
                     } else {
-                        System.err.println("Invalid roomID for starting room...");
+                        // Error setting up room, tell user there was an invalid operation and inform
+                        // the server of the mishap
+                        try {
+                            output.write(":INVALID:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        leaveCurRoom();
+                        server.inform(username + " tried to start room with ID = " + roomID
+                                + ". ID is already in use so room was not started...");
                     }
                     break;
                 case "JOIN":
-                    if (validID(roomID) && server.containsRoom(roomID)) {
+                    if (server.containsRoom(roomID) && server.getRoom(roomID).getPass().equals(pass)) {
+                        try {
+                            output.write(":VALID:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         joinRoom(roomID);
                     } else {
-                        System.err.println("Invalid roomID for joining room...");
+                        // Error setting up room, tell user there was an invalid operation and inform
+                        // the server of the mishap
+                        try {
+                            output.write(":INVALID:");
+                            output.newLine();
+                            output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        leaveCurRoom();
+                        server.inform(username + " tried to join room with ID = " + roomID
+                                + ". Either the room does not exist or the password was incorrect, so room was not joined...");
                     }
                     break;
                 case "MESSAGE":
-                    if (validID(roomID) && server.containsRoom(roomID)) {
+                    if (server.containsRoom(roomID)) {
                         msgRoom(roomID, ":MESSAGE:" + message);
                     } else {
                         System.err.println("Invalid roomID to send message...");
@@ -154,20 +197,20 @@ public class ServerThread extends Thread {
         }
     }
 
-    /**
-     * Verifies that the supplied ID is valid
-     */
-    public boolean validID(String ID) {
-        return (ID.length() > 0);
-    }
+    // /**
+    // * Verifies that the supplied ID is valid
+    // */
+    // public boolean validID(String ID) {
+    // return (ID.length() > 0 && ID.length() <= 10);
+    // }
 
     /**
      * Add a new room to the server and add the creator
      */
-    public void startRoom(String roomID) {
+    public void startRoom(String roomID, String password) {
         // Make this boolean to check that no room with existing ID exists
         // Check that room name not taken
-        server.addRoom(new Room(roomID));
+        server.addRoom(new Room(roomID, password));
         joinRoom(roomID);
         curRoomID = roomID;
     }
@@ -176,7 +219,7 @@ public class ServerThread extends Thread {
      * Add the user to the given room and inform all users in that room of the event
      */
     public void joinRoom(String roomID) {
-        //If a user is already in a room, remove them from the old room
+        // If a user is already in a room, remove them from the old room
         leaveCurRoom();
         Room newRoom = server.getRoom(roomID);
         newRoom.addUser(this);
@@ -185,10 +228,11 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Remove user from their current room and inform all users in that room of the event
+     * Remove user from their current room and inform all users in that room of the
+     * event
      */
     public void leaveCurRoom() {
-        if (!(curRoomID == null)){
+        if (!(curRoomID == null)) {
             Room room = server.getRoom(curRoomID);
             room.removeUser(this);
             msgRoom(curRoomID, ":UPDATE:" + room.getUsernames());

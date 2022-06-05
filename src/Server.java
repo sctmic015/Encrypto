@@ -42,7 +42,7 @@ import java.util.Date;
 public class Server {
     private int port;
     // Store a set of unique connected usernames and rooms for the server to track
-    private Set<String> usernames = new HashSet<>();
+    private ArrayList<String> usernames = new ArrayList<>();
     private Set<Room> rooms = new HashSet<>();
     private X509Certificate trustAnchorCert;
     private X509Certificate serverCertificate;
@@ -83,11 +83,12 @@ public class Server {
      * The method returns whether a user was successfully added.
      */
     public synchronized boolean addUser(String username) {
-        if (!usernames.contains(username)) {
+        /* if (!usernames.contains(username)) {
             usernames.add(username);
             return true;
         }
-        return false;
+        return false; */
+        return usernames.add(username);
     }
 
     /**

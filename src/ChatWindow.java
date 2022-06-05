@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -63,9 +64,8 @@ public class ChatWindow extends JFrame {
     private JButton btnSend = new JButton("Send");
 
     // Fields
-    private String chosenChatName = "Welcome!";
     private String hint = "Type a message...";
-    private boolean splashOpen = true;
+    private volatile boolean splashOpen = true;
     private User user;
     private String curRoomID = "";
 
@@ -172,6 +172,8 @@ public class ChatWindow extends JFrame {
                     // Popup design
                     JTextField roomID = new JTextField(10);
                     JTextField password = new JTextField(10);
+                    // TODO Switch to JPasswordField for submission ^
+                    // JPasswordField password = new JPasswordField(10);
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter new room name:"));
                     myPanel.add(roomID);
@@ -183,10 +185,16 @@ public class ChatWindow extends JFrame {
                     int result = JOptionPane.showConfirmDialog(null, myPanel,
                             "Start new room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
-                        // TODO: Write check to ensure room ID is unique and id/password are not null
+                        // If roomID and password are valid strings, send message to server
                         curRoomID = roomID.getText();
-                        user.setTextMessage(":START:" + curRoomID + ":");
-                        setupChat();
+                        String pswd = password.getText();
+                        if (validID(curRoomID) && validPass(pswd)) {
+                            user.setTextMessage(":START:" + curRoomID + ":" + pswd + ":");
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Invalid room ID or password. Please re-enter fields...", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
             }
@@ -199,7 +207,10 @@ public class ChatWindow extends JFrame {
                 if (e.getSource() == btnJoinRoom) {
                     JTextField roomID = new JTextField(10);
                     JTextField password = new JTextField(10);
+                    // TODO Switch to JPasswordField for submission ^
+                    // JPasswordField password = new JPasswordField(10);
 
+                    // Popup design
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter room name:"));
                     myPanel.add(roomID);
@@ -207,13 +218,20 @@ public class ChatWindow extends JFrame {
                     myPanel.add(new JLabel("Enter room passord:"));
                     myPanel.add(password);
 
+                    // Open popup
                     int result = JOptionPane.showConfirmDialog(null, myPanel,
                             "Join room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
-                        // TODO: Write check to ensure room ID is unique and id/password are not null
+                        // If roomID and password are valid strings, send message to server
                         curRoomID = roomID.getText();
-                        user.setTextMessage(":JOIN:" + curRoomID + ":");
-                        setupChat();
+                        String pswd = password.getText();
+                        if (validID(curRoomID) && validPass(pswd)) {
+                            user.setTextMessage(":JOIN:" + curRoomID + ":" + pswd + ":");
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Invalid room ID or password. Please re-enter fields...", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
             }
@@ -248,7 +266,7 @@ public class ChatWindow extends JFrame {
         lblPersonalUsername.setHorizontalAlignment(SwingConstants.CENTER);
         pnlPersonalUsername.setBounds(0, 0, 180, 40);
         pnlPersonalUsername.setBackground(new Color(0x21827e));
-        lblChattingToUsername = new JLabel(chosenChatName); // Default header is not to a user
+        lblChattingToUsername = new JLabel("Welcome!"); // Default header is not to a user
         lblChattingToUsername.setFont(new Font("", Font.BOLD, 14));
         lblChattingToUsername.setHorizontalAlignment(SwingConstants.CENTER);
         pnlChattingToUsername.setBounds(180, 0, 620, 40);
@@ -269,6 +287,29 @@ public class ChatWindow extends JFrame {
     }
 
     /**
+     * Check if room ID is of length between 1 and 10 characters
+     */
+    protected boolean validID(String attemptedID) {
+        return (attemptedID.length() > 0 && attemptedID.length() <= 10);
+    }
+
+    /**
+     * Check if password is of length between 0 and 10 characters
+     */
+    protected boolean validPass(String attemptedPass) {
+        return (attemptedPass.length() >= 0 && attemptedPass.length() <= 10);
+    }
+
+    /**
+     * Tell the user that the message sent to server was deemed a failure
+     */
+    public void warnFailure() {
+        JOptionPane.showMessageDialog(null,
+                "Room password incorrect or room ID cannot be joined/started...", "Error",
+                JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
      * Show chatting area instead of splash
      */
     public void setupChat() {
@@ -276,7 +317,7 @@ public class ChatWindow extends JFrame {
             splashOpen = false; // Set the splash option off (Chat currently opening)
 
             // Set chatting roomID and clear splash components
-            lblChattingToUsername.setText(curRoomID);
+            lblChattingToUsername.setText("Room ID: " + curRoomID);
             pnlChatHistory.remove(lblLogoImage);
             pnlTypeAndSendMessage.remove(lblWelcomeText);
             pnlChatArea.setLayout(new BorderLayout());
@@ -325,17 +366,21 @@ public class ChatWindow extends JFrame {
             // Send button functionality
             btnSend.addActionListener(new ActionListener() {
                 /**
-                 * Send the typed contents for messaging to the server to send to each connected
-                 * user in room
+                 * If a user is in a room, send typed message to the server to be broadcast to
+                 * each connected
+                 * user the room
                  */
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String messageContents = txtMessage.getText();
-                    txtMessage.setText(hint);
+                    if (!curRoomID.equals("")) {
+                        String messageContents = txtMessage.getText();
+                        txtMessage.setText(hint);
 
-                    // Set the user chat contents for sending to server
-                    user.setTextMessage(
-                            ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
+                        // Set the user chat contents for sending to server
+                        user.setTextMessage(
+                                ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
+                    }
+
                 }
             });
 
@@ -348,6 +393,9 @@ public class ChatWindow extends JFrame {
             // Messaging screen is already setup so just clear the contents
             clearChatArea();
         }
+
+        repaint();
+        revalidate();
     }
 
     /**
@@ -361,9 +409,11 @@ public class ChatWindow extends JFrame {
      * Updates the table of connected users in room with the supplied list of names
      */
     public void updateRoomWith(ArrayList<String> connectedUserList) {
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("In room with:", new Vector<>(connectedUserList));
-        tblConnectedUsers.setModel(model);
+        if (connectedUserList.size() != 0) {
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("In room with:", new Vector<>(connectedUserList));
+            tblConnectedUsers.setModel(model);
+        }
     }
 
     /**

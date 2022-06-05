@@ -7,20 +7,22 @@
  * @version June 2022
  */
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Room {
 
     private String roomID;
-    // private String password;
+    private String password;
     private Set<ServerThread> sThreads;
 
     /**
      * Room constructor for initialising new, empty room
      */
-    public Room(String roomID) {
+    public Room(String roomID, String password) {
         this.roomID = roomID;
+        this.password = password;
         sThreads = new HashSet<>();
     }
 
@@ -42,8 +44,8 @@ public class Room {
     /**
      * Retrieve usernames of all users in a room
      */
-    public Set<String> getUsernames() {
-        Set<String> usernames = new HashSet<>();
+    public ArrayList<String> getUsernames() {
+        ArrayList<String> usernames = new ArrayList<>();
         for (ServerThread sThread : sThreads) {
             usernames.add(sThread.getUsername());
         }
@@ -57,6 +59,10 @@ public class Room {
         for (ServerThread sThread : sThreads) {
             sThread.sendMsg(msg);
         }
+    }
+
+    public String getPass() {
+        return password;
     }
 
     // public String getPass(){
