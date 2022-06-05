@@ -153,7 +153,6 @@ public class ServerThread extends Thread {
                             e.printStackTrace();
                         }
 
-                        leaveCurRoom();
                         server.inform(username + " tried to start room with ID = " + roomID
                                 + ". ID is already in use so room was not started...");
                     }
@@ -179,7 +178,6 @@ public class ServerThread extends Thread {
                             e.printStackTrace();
                         }
 
-                        leaveCurRoom();
                         server.inform(username + " tried to join room with ID = " + roomID
                                 + ". Either the room does not exist or the password was incorrect, so room was not joined...");
                     }
@@ -196,13 +194,6 @@ public class ServerThread extends Thread {
             }
         }
     }
-
-    // /**
-    // * Verifies that the supplied ID is valid
-    // */
-    // public boolean validID(String ID) {
-    // return (ID.length() > 0 && ID.length() <= 10);
-    // }
 
     /**
      * Add a new room to the server and add the creator

@@ -67,6 +67,7 @@ public class ChatWindow extends JFrame {
     private String hint = "Type a message...";
     private volatile boolean splashOpen = true;
     private User user;
+    private String attemptedRoomID = "";
     private String curRoomID = "";
 
     /**
@@ -186,10 +187,10 @@ public class ChatWindow extends JFrame {
                             "Start new room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         // If roomID and password are valid strings, send message to server
-                        curRoomID = roomID.getText();
+                        attemptedRoomID = roomID.getText();
                         String pswd = password.getText();
-                        if (validID(curRoomID) && validPass(pswd)) {
-                            user.setTextMessage(":START:" + curRoomID + ":" + pswd + ":");
+                        if (validID(attemptedRoomID) && validPass(pswd)) {
+                            user.setTextMessage(":START:" + attemptedRoomID + ":" + pswd + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
                                     "Invalid room ID or password. Please re-enter fields...", "Error",
@@ -223,10 +224,10 @@ public class ChatWindow extends JFrame {
                             "Join room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         // If roomID and password are valid strings, send message to server
-                        curRoomID = roomID.getText();
+                        attemptedRoomID = roomID.getText();
                         String pswd = password.getText();
-                        if (validID(curRoomID) && validPass(pswd)) {
-                            user.setTextMessage(":JOIN:" + curRoomID + ":" + pswd + ":");
+                        if (validID(attemptedRoomID) && validPass(pswd)) {
+                            user.setTextMessage(":JOIN:" + attemptedRoomID + ":" + pswd + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
                                     "Invalid room ID or password. Please re-enter fields...", "Error",
@@ -249,8 +250,7 @@ public class ChatWindow extends JFrame {
                         if (user.disconnect()) {
                             new LoginWindow(new User(user.getHost(), user.getPort()));
                         }
-                    }
-                    catch(GeneralSecurityException exception){
+                    } catch (GeneralSecurityException exception) {
                         System.out.println("Whoopsie");
                     }
                 }
@@ -313,6 +313,7 @@ public class ChatWindow extends JFrame {
      * Show chatting area instead of splash
      */
     public void setupChat() {
+        curRoomID = attemptedRoomID; // Room join/start success so current room ID is updated
         if (splashOpen) {
             splashOpen = false; // Set the splash option off (Chat currently opening)
 
