@@ -8,12 +8,14 @@
  * @version June 2022
  */
 
+import org.bouncycastle.jcajce.provider.asymmetric.X509;
 import org.bouncycastle.operator.OperatorCreationException;
 
 import java.net.*;
 import java.io.*;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 public class ServerThread extends Thread {
     private Socket socket;
@@ -21,6 +23,7 @@ public class ServerThread extends Thread {
     private BufferedReader input;
     private BufferedWriter output;
     private ObjectInput userPublicKeyInput;
+    private ObjectOutput userCertificateOutput;
     private String username;
     private String curRoomID;
     private PublicKey userPublicKey;
@@ -39,16 +42,25 @@ public class ServerThread extends Thread {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             userPublicKeyInput = new ObjectInputStream(socket.getInputStream());
+            userCertificateOutput = new ObjectOutputStream(socket.getOutputStream());
 
             // ServerThread is created on login attempt so username will be sent. Ask the
             // server to add this username
             username = input.readLine();
             // System.out.println(username);
             userPublicKey = (PublicKey) userPublicKeyInput.readObject();
-            server.addUserCertificates(username, "SHA256WithRSA", userPublicKey);
+            //server.addUserCertificates(username, "SHA256WithRSA", userPublicKey);
+            X509Certificate userCertificate = server.createEndEntity(username, "SHA256WithRSA", userPublicKey);
+            server.addUserCertificate2(userCertificate);
             server.printUserCertificates();
-            // System.out.println(userPublicKey);
-            if (server.addUser(username)) {
+            //output.write("Message");
+            //output.write(userCertificate.toString());
+            userCertificateOutput.writeObject(userCertificate);
+            userCertificateOutput.flush();
+            System.out.println(userPublicKey);
+            if (!server.addUser(username)) {
+                // socket.close(); // Close connection if user can't be added
+            } else {
                 // User was successfully added and is connected in this thread; let the server
                 // output this news to console
                 server.inform(username + " is connected!");

@@ -10,22 +10,30 @@
 
 import java.net.*;
 import java.io.*;
+import java.security.cert.X509Certificate;
 
 public class UserRead extends Thread {
     private Socket socket;
     private User user;
     private BufferedReader input;
+    private X509Certificate userCertificate;
+    private ObjectInput CertInput;
 
     /**
      * Constructor
      */
-    public UserRead(Socket socket, User user) {
+    public UserRead(Socket socket, User user) throws ClassNotFoundException {
         this.socket = socket;
         this.user = user;
 
         // Setup the input handler
         try {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("LOl");
+            System.out.println("Lol2");
+            //X509Certificate userCertificate = (X509Certificate) CertInput.readObject();
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -37,12 +45,34 @@ public class UserRead extends Thread {
     @Override
     public void run() {
         String line;
+        X509Certificate certificate;
+        int count = 0;
+
 
         while (socket.isConnected() && user.isConnected()) {
+            try {
+                if (count == 0) {
+                    count ++;
+                    CertInput = new ObjectInputStream(socket.getInputStream());
+                    if ((certificate = (X509Certificate) CertInput.readObject()) != null) {
+                        user.addCertificate(certificate);
+                        System.out.println(certificate);
+                        //CertInput.close();
+                        //Thread.sleep(200);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             // Receive the text from server
             try {
                 if ((line = input.readLine()) != null) {
-
+                    //System.out.println("Test");
+                    System.out.print(line);
                     // Using control commands, handle incoming message appropriately
                     String[] controlCommands = line.split(":", 3);
                     // Assign the split variables appropriately

@@ -8,9 +8,12 @@
  * @version June 2022
  */
 
+import org.bouncycastle.jcajce.provider.asymmetric.X509;
+
 import java.awt.EventQueue;
 import java.net.*;
 import java.security.*;
+import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +32,7 @@ public class User {
     private ChatWindow chatWindow;
     private volatile ArrayList<String> connectedUsers;
     private KeyPair keyPair;
+    private X509Certificate userCertificate;
 
     /**
      * Constructor to connect user to server
@@ -115,7 +119,7 @@ public class User {
      * 
      * @param String: Username supplied to check if valid
      */
-    public boolean validUsername() {
+    public boolean validUsername() throws ClassNotFoundException {
         if (username.length() > 0 && username.length() < 18) {
             begin(); // Execute the connection which will set 'connected' based on this connection
         }
@@ -186,10 +190,14 @@ public class User {
         return this.keyPair.getPublic();
     }
 
+    public void addCertificate(X509Certificate userCertificate){
+        this.userCertificate = userCertificate;
+    }
+
     /**
      * Begin user execution socket and launch read/write threads
      */
-    public void begin() {
+    public void begin() throws ClassNotFoundException {
         try {
             socket = new Socket(host, port);
             connected = true;

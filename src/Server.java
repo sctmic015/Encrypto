@@ -244,11 +244,12 @@ public class Server {
         userCertificates.add(userCertificate);
     }
 
-    /**
-     * Prints user certificates to standard out
-     */
-    public void printUserCertificates() {
-        for (int i = 0; i < userCertificates.size(); i++) {
+    public void addUserCertificate2(X509Certificate userCertificate){
+        userCertificates.add(userCertificate);
+    }
+
+    public void printUserCertificates(){
+        for (int i = 0; i < userCertificates.size(); i ++){
             System.out.println(userCertificates.get(i));
             System.out.println(i);
         }
