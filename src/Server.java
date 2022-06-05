@@ -242,6 +242,10 @@ public class Server {
         userCertificates.add(userCertificate);
     }
 
+    public void addUserCertificate2(X509Certificate userCertificate){
+        userCertificates.add(userCertificate);
+    }
+
     public void printUserCertificates(){
         for (int i = 0; i < userCertificates.size(); i ++){
             System.out.println(userCertificates.get(i));

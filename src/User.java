@@ -9,6 +9,7 @@
 import java.awt.EventQueue;
 import java.net.*;
 import java.security.*;
+import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ public class User {
     private ChatWindow chatWindow;
     private volatile ArrayList<String> connectedUsers;
     private KeyPair keyPair;
+    private X509Certificate userCertificate;
 
     /**
      * Constructor to connect user to server
