@@ -2,8 +2,9 @@
 /**
  * Abstraction of a chat room that users connect to in order to share secure messages
  * 
- * @author David Court, CRTDAV015
  * @author Bradley Culligan, CLLBRA005
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
  * @version June 2022
  */
 
@@ -26,17 +27,23 @@ public class Room {
         sThreads = new HashSet<>();
     }
 
-    // Add user to room
+    /**
+     * Add user's server thread to room (i.e. user added to room)
+     */
     public void addUser(ServerThread sThread) {
         sThreads.add(sThread);
     }
 
-    // Remove a user from the room
+    /**
+     * Remove user's server thread from room (i.e. user removed from room)
+     */
     public void removeUser(ServerThread sThread) {
         sThreads.remove(sThread);
     }
 
-    // Get roomID
+    /**
+     * Getter for room's ID
+     */
     public String getRoomID() {
         return roomID;
     }
@@ -64,8 +71,4 @@ public class Room {
     public String getPass() {
         return password;
     }
-
-    // public String getPass(){
-    // return password;
-    // }
 }

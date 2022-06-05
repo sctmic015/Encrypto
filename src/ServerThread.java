@@ -3,7 +3,9 @@
  * Threaded server instance handling a client to allow multiple user connection on server
  * 
  * @author Bradley Culligan, CLLBRA005
- * @version May 2022
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
+ * @version June 2022
  */
 
 import org.bouncycastle.jcajce.provider.asymmetric.X509;
@@ -45,7 +47,7 @@ public class ServerThread extends Thread {
             // ServerThread is created on login attempt so username will be sent. Ask the
             // server to add this username
             username = input.readLine();
-            //System.out.println(username);
+            // System.out.println(username);
             userPublicKey = (PublicKey) userPublicKeyInput.readObject();
             //server.addUserCertificates(username, "SHA256WithRSA", userPublicKey);
             X509Certificate userCertificate = server.createEndEntity(username, "SHA256WithRSA", userPublicKey);
@@ -75,7 +77,9 @@ public class ServerThread extends Thread {
         return username;
     }
 
-    // PGP starts here
+    /**
+     * Send message from server to user connected on this server thread
+     */
     public void sendMsg(String msg) {
         try {
             output.write(msg);
@@ -106,8 +110,6 @@ public class ServerThread extends Thread {
 
             // Check for control commands, and handles command approriately
             String[] controlCommands = receivedText.split(":", 5);
-            // Debug thing below
-            // server.inform(Arrays.toString(controlCommands));
 
             // Assign the split variables appropriately
             String message = "";
@@ -162,7 +164,6 @@ public class ServerThread extends Thread {
                             e.printStackTrace();
                         }
 
-                        leaveCurRoom();
                         server.inform(username + " tried to start room with ID = " + roomID
                                 + ". ID is already in use so room was not started...");
                     }
@@ -188,7 +189,6 @@ public class ServerThread extends Thread {
                             e.printStackTrace();
                         }
 
-                        leaveCurRoom();
                         server.inform(username + " tried to join room with ID = " + roomID
                                 + ". Either the room does not exist or the password was incorrect, so room was not joined...");
                     }
@@ -206,19 +206,10 @@ public class ServerThread extends Thread {
         }
     }
 
-    // /**
-    // * Verifies that the supplied ID is valid
-    // */
-    // public boolean validID(String ID) {
-    // return (ID.length() > 0 && ID.length() <= 10);
-    // }
-
     /**
      * Add a new room to the server and add the creator
      */
     public void startRoom(String roomID, String password) {
-        // Make this boolean to check that no room with existing ID exists
-        // Check that room name not taken
         server.addRoom(new Room(roomID, password));
         joinRoom(roomID);
         curRoomID = roomID;

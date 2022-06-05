@@ -3,7 +3,9 @@
  * The user reader thread which reads a server input and appropriately handles that data
  * 
  * @author Bradley Culligan, CLLBRA005
- * @version May 2022
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
+ * @version June 2022
  */
 
 import java.net.*;

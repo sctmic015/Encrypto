@@ -3,7 +3,9 @@
  * Represents a user and handles logic for UI and server access control
  * 
  * @author Bradley Culligan, CLLBRA005
- * @version May 2022
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
+ * @version June 2022
  */
 
 import org.bouncycastle.jcajce.provider.asymmetric.X509;
@@ -56,12 +58,12 @@ public class User {
     }
 
     /**
-     * Updates the list of connected users 
+     * Updates the list of connected users
      */
     // TODO: and their associated public keys
     public void updateConnectedUsers(String connectedList) {
         // Remove the opening and closing brace
-        connectedList = connectedList.substring(1, connectedList.length()-1);
+        connectedList = connectedList.substring(1, connectedList.length() - 1);
 
         // Split the list and store in a list data structure
         connectedUsers = new ArrayList<>(Arrays.asList(connectedList.split(", ")));
@@ -129,7 +131,7 @@ public class User {
      */
     public void warnFailure() {
         chatWindow.warnFailure();
-    } 
+    }
 
     /**
      * Sets up the GUI for chatting with new instance
@@ -168,6 +170,9 @@ public class User {
         System.out.println(text);
     }
 
+    /**
+     * Generates and returns the user's key pair
+     */
     private KeyPair userKey() throws GeneralSecurityException {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
@@ -178,7 +183,10 @@ public class User {
         return kpGen.generateKeyPair();
     }
 
-    public PublicKey getPublicKey(){
+    /**
+     * Get the user's public key
+     */
+    public PublicKey getPublicKey() {
         return this.keyPair.getPublic();
     }
 
@@ -237,13 +245,17 @@ public class User {
         });
     }
 
-    // Display an incoming message to the GUI chat area
-    public void addNewMessage(){
+    /**
+     * Display an incoming message to the GUI chat area
+     */
+    public void addNewMessage() {
         chatWindow.updateTxtChat(receivedMessage);
     }
 
-    // Update GUI to show new list of room users
-    public void updateRoomListOfConnectedUsers(){
+    /**
+     * Update GUI to show new list of room users
+     */
+    public void updateRoomListOfConnectedUsers() {
         chatWindow.updateRoomWith(connectedUsers);
     }
 }
