@@ -29,10 +29,7 @@ public class UserRead extends Thread {
         // Setup the input handler
         try {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("LOl");
-            System.out.println("Lol2");
             //X509Certificate userCertificate = (X509Certificate) CertInput.readObject();
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,7 +45,6 @@ public class UserRead extends Thread {
         X509Certificate certificate;
         int count = 0;
 
-
         while (socket.isConnected() && user.isConnected()) {
             try {
                 if (count == 0) {
@@ -56,7 +52,9 @@ public class UserRead extends Thread {
                     CertInput = new ObjectInputStream(socket.getInputStream());
                     if ((certificate = (X509Certificate) CertInput.readObject()) != null) {
                         user.addCertificate(certificate);
-                        System.out.println(certificate);
+
+                        // --- DEBUG STATEMENT ---
+                        user.inform(certificate.toString());
                     }
                 }
             } catch (IOException e) {
@@ -67,10 +65,12 @@ public class UserRead extends Thread {
             // Receive the text from server
             try {
                 if ((line = input.readLine()) != null) {
-                    //System.out.println("Test");
-                    System.out.print(line);
                     // Using control commands, handle incoming message appropriately
                     String[] controlCommands = line.split(":", 3);
+
+                    // --- DEBUG STATEMENT ---
+                    user.inform("Message received from server: " + line);
+
                     // Assign the split variables appropriately
                     String command = "";
                     String contents = ""; // either msg or username set
