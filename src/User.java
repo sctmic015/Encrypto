@@ -160,6 +160,8 @@ public class User {
         System.out.println(text);
     }
 
+
+
     /**
      * Begin user execution socket and launch read/write threads
      */
