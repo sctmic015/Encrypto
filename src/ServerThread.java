@@ -51,9 +51,11 @@ public class ServerThread extends Thread {
             X509Certificate userCertificate = server.createEndEntity(username, "SHA256WithRSA", userPublicKey);
             server.addUserCertificate2(userCertificate);
             server.printUserCertificates();
+            //output.write("Message");
+            //output.write(userCertificate.toString());
             userCertificateOutput.writeObject(userCertificate);
             userCertificateOutput.flush();
-            //System.out.println(userPublicKey);
+            System.out.println(userPublicKey);
             if (!server.addUser(username)) {
                 // socket.close(); // Close connection if user can't be added
             } else {

@@ -80,12 +80,16 @@ public class LoginWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String username = txtJoinName.getText().trim();
                 user.setUsername(username);
-                if (login()) {
-                    dispose();
-                    user.createChatWindow(user);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Please enter a different username", "Username Invalid",
-                            JOptionPane.WARNING_MESSAGE);
+                try {
+                    if (login()) {
+                        dispose();
+                        user.createChatWindow(user);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Please enter a different username", "Username Invalid",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (ClassNotFoundException ex) {
+                    ex.printStackTrace();
                 }
             }
         });
@@ -100,7 +104,7 @@ public class LoginWindow extends JFrame {
     /**
      * Attempt to login the user by setting the username
      */
-    private boolean login() {
+    private boolean login() throws ClassNotFoundException {
         // Prevent further user interaction until login check is complete
         pnlBottomBar.remove(btnJoinNetwork);
         pnlBottomBar.remove(txtJoinName);
