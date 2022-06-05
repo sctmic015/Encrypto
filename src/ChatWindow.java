@@ -186,9 +186,9 @@ public class ChatWindow extends JFrame {
                             "Start new room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         // If roomID and password are valid strings, send message to server
-                        curRoomID = roomID.getText();
                         String pswd = password.getText();
-                        if (validID(curRoomID) && validPass(pswd)) {
+                        if (validID(roomID.getText()) && validPass(password.getText())) {
+                            curRoomID = roomID.getText();
                             user.setTextMessage(":START:" + curRoomID + ":" + pswd + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
@@ -223,9 +223,9 @@ public class ChatWindow extends JFrame {
                             "Join room", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         // If roomID and password are valid strings, send message to server
-                        curRoomID = roomID.getText();
-                        String pswd = password.getText();
-                        if (validID(curRoomID) && validPass(pswd)) {
+                        if (validID(roomID.getText()) && validPass(password.getText())) {
+                            curRoomID = roomID.getText();
+                            String pswd = password.getText();
                             user.setTextMessage(":JOIN:" + curRoomID + ":" + pswd + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
