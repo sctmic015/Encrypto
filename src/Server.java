@@ -36,7 +36,9 @@ import java.util.Date;
  * Server for communication to Encrypto clients
  * 
  * @author Bradley Culligan, CLLBRA005
- * @version May 2022
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
+ * @version June 2022
  */
 
 public class Server {
@@ -62,7 +64,10 @@ public class Server {
                 keyPair.getPublic(), 0);
     }
 
-    public X509Certificate getServerCertificate(){
+    /**
+     * Getter for server certificate
+     */
+    public X509Certificate getServerCertificate() {
         return serverCertificate;
     }
 
@@ -83,11 +88,6 @@ public class Server {
      * The method returns whether a user was successfully added.
      */
     public synchronized boolean addUser(String username) {
-        /* if (!usernames.contains(username)) {
-            usernames.add(username);
-            return true;
-        }
-        return false; */
         return usernames.add(username);
     }
 
@@ -99,14 +99,18 @@ public class Server {
         return usernames.remove(username);
     }
 
-    //Allows users to create rooms
-    // Should check that the given room doesn't already exist
-    public void addRoom(Room newRoom){
+    /**
+     * Adds a new room to the set of rooms
+     */
+    public void addRoom(Room newRoom) {
         rooms.add(newRoom);
     }
 
-    //gets the room associated with the given ID. If this doesn't exist, it will return null. Might need handeling
-    public Room getRoom(String roomID){
+    /**
+     * Gets the room associated with the supplied room ID. If room doesn't exist,
+     * this returns null
+     */
+    public Room getRoom(String roomID) {
         Room returnRoom = null;
         for (Room r : rooms) {
             if (roomID.equals(r.getRoomID()))
@@ -115,6 +119,9 @@ public class Server {
         return returnRoom;
     }
 
+    /**
+     * Uses Bouncy Castle API to generate the key pair
+     */
     private KeyPair serverKey() throws GeneralSecurityException {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
@@ -124,27 +131,33 @@ public class Server {
 
         return kpGen.generateKeyPair();
     }
-    public static Date calculateDate(int hoursInFuture)
-    {
-        long secs = System.currentTimeMillis() / 1000;
 
+    /**
+     * Gets accurate date
+     */
+    public static Date calculateDate(int hoursInFuture) {
+        long secs = System.currentTimeMillis() / 1000;
 
         return new Date((secs + (hoursInFuture * 60 * 60)) * 1000);
     }
-    public static synchronized BigInteger calculateSerialNumber()
-    {
+
+    /**
+     * Serial number counter
+     */
+    public static synchronized BigInteger calculateSerialNumber() {
         count += 1;
         return BigInteger.valueOf(count);
     }
 
+    /**
+     * Creates an X509 certificate and returns it
+     */
     private X509Certificate createCACertificate(
             X509Certificate signerCert, PrivateKey signerKey,
             String sigAlg, PublicKey certKey, int followingCACerts)
             throws GeneralSecurityException,
-            OperatorCreationException, CertIOException
-    {
+            OperatorCreationException, CertIOException {
         X500Principal subject = new X500Principal("CN=Certificate Authority");
-
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
                 signerCert.getSubjectX500Principal(),
@@ -154,33 +167,28 @@ public class Server {
                 subject,
                 certKey);
 
-
         JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
 
-
         certBldr.addExtension(Extension.basicConstraints,
-                        true, new BasicConstraints(followingCACerts))
-                .addExtension(Extension.keyUsage,
-                        true, new KeyUsage(KeyUsage.keyCertSign
-                                | KeyUsage.cRLSign));
-
+                true, new BasicConstraints(followingCACerts)).addExtension(Extension.keyUsage,
+                        true, new KeyUsage(KeyUsage.keyCertSign | KeyUsage.cRLSign));
 
         ContentSigner signer = new JcaContentSignerBuilder(sigAlg)
                 .setProvider("BC").build(signerKey);
 
-
         JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
-
 
         return converter.getCertificate(certBldr.build(signer));
     }
+
+    /**
+     * Creates trust anchor certificate and returns it
+     */
     public static X509Certificate createTrustAnchor(
             KeyPair keyPair, String sigAlg)
-            throws OperatorCreationException, CertificateException
-    {
+            throws OperatorCreationException, CertificateException {
         Security.addProvider(new BouncyCastleProvider());
         X500Name name = new X500Name("CN=Trust Anchor");
-
 
         X509v1CertificateBuilder certBldr = new JcaX509v1CertificateBuilder(
                 name,
@@ -190,27 +198,25 @@ public class Server {
                 name,
                 keyPair.getPublic());
 
-
         ContentSigner signer = new JcaContentSignerBuilder(sigAlg)
                 .setProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider()).build(keyPair.getPrivate());
 
-
         JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-
 
         return converter.getCertificate(certBldr.build(signer));
     }
 
+    /**
+     * Creates end entity certificate and returns it
+     */
     public X509Certificate createEndEntity(String username,
             String sigAlg, PublicKey certKey)
-            throws CertIOException, OperatorCreationException, CertificateException
-    {
+            throws CertIOException, OperatorCreationException, CertificateException {
         X509Certificate signerCert = getServerCertificate();
         PrivateKey signerKey = keyPair.getPrivate();
         X500Principal subject = new X500Principal("CN=" + username);
 
-
-        X509v3CertificateBuilder  certBldr = new JcaX509v3CertificateBuilder(
+        X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
                 signerCert.getSubjectX500Principal(),
                 calculateSerialNumber(),
                 calculateDate(0),
@@ -218,23 +224,19 @@ public class Server {
                 subject,
                 certKey);
 
-
         certBldr.addExtension(Extension.basicConstraints,
-                        true, new BasicConstraints(false))
-                .addExtension(Extension.keyUsage,
-                        true, new KeyUsage(KeyUsage.digitalSignature));
+                true, new BasicConstraints(false)).addExtension(Extension.keyUsage,true, new KeyUsage(KeyUsage.digitalSignature));
 
-
-        ContentSigner signer = new JcaContentSignerBuilder(sigAlg)
-                .setProvider("BC").build(signerKey);
-
+        ContentSigner signer = new JcaContentSignerBuilder(sigAlg).setProvider("BC").build(signerKey);
 
         JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
-
 
         return converter.getCertificate(certBldr.build(signer));
     }
 
+    /**
+     * Stores the user certificate
+     */
     public void addUserCertificates(String userName,
             String sigAlg, PublicKey certKey)
             throws CertIOException, OperatorCreationException, CertificateException {
@@ -242,12 +244,16 @@ public class Server {
         userCertificates.add(userCertificate);
     }
 
-    public void printUserCertificates(){
-        for (int i = 0; i < userCertificates.size(); i ++){
+    /**
+     * Prints user certificates to standard out
+     */
+    public void printUserCertificates() {
+        for (int i = 0; i < userCertificates.size(); i++) {
             System.out.println(userCertificates.get(i));
             System.out.println(i);
         }
     }
+
     /**
      * Starts server listening for connections
      */
@@ -267,7 +273,6 @@ public class Server {
             e.printStackTrace();
         }
     }
-
 
     /**
      * Allows outputing messages to console for server logging

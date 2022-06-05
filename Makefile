@@ -3,8 +3,10 @@
 JC=/usr/bin/javac
 BIN=bin
 SRC=src
+JARS=lib/bcmail-jdk18on-171.jar:lib/bcpkix-jdk18on-171.jar:lib/bcprov-jdk18on-171.jar:lib/bctls-jdk18on-171.jar:lib/bcutil-jdk18on-171.jar
+BINJARS=$(BIN):$(JARS)
 JAVA_FILES=$(SRC)/*.java
-JFLAGS=-d $(BIN)/ -sourcepath $(SRC) 
+JFLAGS=-d $(BIN)/ -sourcepath $(SRC) -cp $(JARS)
 
 build: $(JAVA_FILES)
 	$(JC) $(JFLAGS) $?
@@ -21,14 +23,14 @@ cleanDocs:
 
 server: $(SRC)/Server.java $(SRC)/ServerThread.java
 	$(JC) $(JFLAGS) $?
-	java -cp $(BIN) Server
+	java -cp $(BINJARS) Server
 
 serverPort: $(SRC)/Server.java $(SRC)/ServerThread.java
 	$(JC) $(JFLAGS) $?
-	java -cp $(BIN) Server $(PORT)
+	java -cp $(BINJARS) Server $(PORT)
 
 user: build
-	java -cp $(BIN) User
+	java -cp $(BINJARS) User
 
 userPort: build
-	java -cp $(BIN) User $(PORT)
+	java -cp $(BINJARS) User $(PORT)

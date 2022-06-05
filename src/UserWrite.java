@@ -3,7 +3,9 @@
  * The user writer thread which writes user input to a server and appropriately handles that data
  * 
  * @author Bradley Culligan, CLLBRA005
- * @version May 2022
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
+ * @version June 2022
  */
 
 import java.net.*;
@@ -47,7 +49,7 @@ public class UserWrite extends Thread {
      */
     @Override
     public void run() {
-        while (socket.isConnected() && user.isConnected()) { 
+        while (socket.isConnected() && user.isConnected()) {
             try {
                 String text = user.getTextMessage();
                 // Only send text if there is something meaningful to send
