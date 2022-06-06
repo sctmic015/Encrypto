@@ -48,29 +48,11 @@ public class UserRead extends Thread {
         X509Certificate certificate;
         int count = 0;
         while (socket.isConnected() && user.isConnected()) {
-            /*
-            try {
-                if (((certificate = input.readObject()) instanceof X509Certificate));
-                if (count == 0) {
-                    count ++;
-                    if ((certificate = (X509Certificate) input.readObject()) != null) {
-                        user.addCertificate(certificate);
-
-                        // --- DEBUG STATEMENT ---
-                        user.inform(certificate.toString());
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } */
-            // Receive the text from server
             try {
                 Object tempInput = input.readObject();
                 if (tempInput instanceof X509Certificate && count == 0){
                     X509Certificate tempCertificate = (X509Certificate) tempInput;
-                    user.addCertificate(tempCertificate);
+                    user.setCertificate(tempCertificate);
                     count ++;
                 }
                 else if (tempInput instanceof X509Certificate && count == 1){
@@ -79,19 +61,9 @@ public class UserRead extends Thread {
                     user.setServerCertificate(serverCertificate);
                     count ++;
                 }
-                else if (tempInput instanceof  X509Certificate){
-                    X509Certificate tempCertificate = (X509Certificate) tempInput;
-                    X509Certificate newUserCertificate = tempCertificate;
-                    String alias = user.getFirstUser();
-                    System.out.println(alias);
-                   // user.updateConnectedUsersKeys();
-                    System.out.println("Current keyRing Size: " + user.keyStore.size());
-                }
                 else if (tempInput instanceof ArrayList<?>){
                     ArrayList<X509Certificate> tempKeyStore = (ArrayList<X509Certificate>) tempInput;
-                    System.out.println("Received Key Store Size: " + tempKeyStore.size());
                     user.updateConnectedUsersKeys(tempKeyStore);
-                    System.out.println("The size of users key arrayList: " + user.getKeyStoreSize());
                 }
                 else {
                     line = (String) tempInput;
@@ -114,7 +86,6 @@ public class UserRead extends Thread {
                         break;
                     } else if (command.equals("UPDATE")) {
                         user.updateConnectedUsers(contents);
-                        System.out.println(contents + "Test");
                     } else if (command.equals("VALID")) {
                         // Server accepts message from user, setup chat instance
                         user.setupChat();

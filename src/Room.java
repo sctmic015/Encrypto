@@ -81,6 +81,9 @@ public class Room {
         }
     }
 
+    /**
+     * Broadcast the given certificate to all users the room
+     */
     public void broadcastMessage(X509Certificate userCertificate){
         for (ServerThread sThread : sThreads){
             sThread.sendMsg(userCertificate);
@@ -88,6 +91,9 @@ public class Room {
         }
     }
 
+    /**
+     * Broadcast the given keyRing to all users the room
+     */
     public void broadcastMessage(ArrayList<X509Certificate> keyRing){
         for (ServerThread sThread : sThreads){
             sThread.sendMsg(keyRing);
@@ -105,6 +111,9 @@ public class Room {
         }
     }
 
+    /**
+     * Return the (hashed) room password 
+     */
     public String getPass() {
         return password;
     }

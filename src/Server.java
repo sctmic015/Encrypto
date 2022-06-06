@@ -290,10 +290,11 @@ public class Server {
     }
 
     /**
-     * Allows outputing messages to console for server logging
+     * Allows outputing messages to console for server debug logging
      */
     public void inform(String message) {
-        System.out.println(message);
+        System.out.println("> " + message);
+        System.out.println("");
     }
 
     public static void main(String[] args) throws GeneralSecurityException, OperatorCreationException, CertIOException {

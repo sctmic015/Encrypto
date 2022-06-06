@@ -87,16 +87,11 @@ public class User {
     }
 
     public void updateConnectedUsersKeys(ArrayList<X509Certificate> keys) throws KeyStoreException {
-        System.out.println("Size in User Class: " + keys.size());
         this.keyRing = keys;
     }
 
     public int getKeyStoreSize(){
         return keyRing.size();
-    }
-
-    public String getFirstUser(){
-        return connectedUsers.get(0);
     }
 
     /**
@@ -228,9 +223,13 @@ public class User {
         return kpGen.generateKeyPair();
     }
 
+    /**
+     * Get the user key pair
+     */
     public KeyPair getKeyPair(){
         return this.keyPair;
     }
+
     /**
      * Get the user's public key
      */
@@ -238,9 +237,13 @@ public class User {
         return this.keyPair.getPublic();
     }
 
-    public void addCertificate(X509Certificate userCertificate){
+    /**
+     * Sets the user certificate
+     */
+    public void setCertificate(X509Certificate userCertificate){
         this.userCertificate = userCertificate;
     }
+
 
     public void setUpKeyRing() throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
         this.keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -255,6 +258,7 @@ public class User {
     public void setServerCertificate(X509Certificate certificate){
         this.serverCertificate = certificate;
     }
+
     /**
      * Begin user execution socket and launch read/write threads
      */

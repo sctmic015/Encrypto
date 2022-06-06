@@ -45,42 +45,33 @@ public class ServerThread extends Thread {
 
         // Setup input/output handlers
         try {
-            //input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            //output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            //userPublicKeyInput = new ObjectInputStream(socket.getInputStream());
-            //userCertificateOutput = new ObjectOutputStream(socket.getOutputStream());
             input = new ObjectInputStream(socket.getInputStream());
             output = new ObjectOutputStream(socket.getOutputStream());
 
-            // ServerThread is created on login attempt so username will be sent. Ask the
-            // server to add this username
+            // Retrieve username and public key sent by user upon login and corresponding certificate
             username = (String) input.readObject();
-            System.out.println(username);
             userPublicKey = (PublicKey) input.readObject();
-            //server.addUserCertificates(username, "SHA256WithRSA", userPublicKey);
             X509Certificate userCertificate = server.createEndEntity(username, "SHA256WithRSA", userPublicKey);
             this.userCertificate = userCertificate;
             server.addUserCertificate(userCertificate);
-            // --- DEBUG STATEMENT ---
-            server.inform(userCertificate.toString());
-            //server.printUserCertificates();
-            //output.write("Message");
-            //output.write(userCertificate.toString());
-            System.out.println("Eish1");
-            System.out.println(userCertificate instanceof X509Certificate);
+
+            // Send user and server certificates back to user
             output.writeObject(userCertificate);
-            System.out.println("Eish2");
             X509Certificate serverCertificate = server.getServerCertificate();
             output.writeObject(serverCertificate);
-            //output.flush();
-            //System.out.println(userPublicKey);
-            // --- DEBUG STATEMENT ---
-            server.inform(userPublicKey.toString());
+
+            // Add username to server and print debug statement
             if (server.addUser(username)) {
-                // User was successfully added and is connected in this thread; let the server
-                // output this news to console
+                // --- DEBUG STATEMENT ---
                 server.inform(username + " is connected!");
             }
+            
+            // --- DEBUG STATEMENT ---
+            server.inform("The user's certificate has been created as follows:");
+            server.inform(userCertificate.toString());
+            server.inform("The user's public key is as follows:");
+            server.inform(userPublicKey.toString());
+            
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -93,6 +84,9 @@ public class ServerThread extends Thread {
         return username;
     }
 
+    /**
+     * Get certificate of user
+     */
     public X509Certificate getUserCertificate() {
         return userCertificate;
     }
@@ -110,13 +104,15 @@ public class ServerThread extends Thread {
     public void sendMsg(String msg) {
         try {
             output.writeObject(msg + "\n");
-            //output.writeObject("\n");
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Send certifiacte from server to user connected on this server thread
+     */
     public void sendMsg(X509Certificate userCertificate){
         try{
             output.writeObject(userCertificate);
@@ -126,6 +122,9 @@ public class ServerThread extends Thread {
         }
     }
 
+    /**
+     * Send certifiacte from server to user connected on this server thread
+     */
     public void sendMsg(ArrayList<X509Certificate> keyRing){
         try{
             output.writeObject(keyRing);
@@ -148,12 +147,16 @@ public class ServerThread extends Thread {
             // Receive the text from user
             try {
                 receivedText = (String )input.readObject();
+
+                // --- DEBUG STATEMENT ---
+                server.inform("The server received the following message from the user:");
                 server.inform(receivedText);
+
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
-            // Check for control commands, and handles command approriately
+            // Tokenise incoming message
             String[] controlCommands = receivedText.split(":", 5);
             
             // Assign the split variables appropriately
@@ -170,6 +173,7 @@ public class ServerThread extends Thread {
                 message = controlCommands[controlCommands.length - 1];
             }
 
+            // Handle incoming command approriately
             switch (command) {
                 case "LOGOUT":
                     // Logout command received, remove user
@@ -178,21 +182,21 @@ public class ServerThread extends Thread {
                         // Send message to user to shut down connection
                         try {
                             output.writeObject(":SHUTDOWN:" + "\n");
-                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
-                        server.inform(username + " has disconnected");
                         running = false;
+                        
+                        // --- DEBUG STATEMENT ---
+                        server.inform(username + " has disconnected");
+
                         break;
                     }
                 case "START":
                     if (!server.containsRoom(roomID)) {
                         try {
                             output.writeObject(":VALID:" + "\n");
-                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -213,12 +217,12 @@ public class ServerThread extends Thread {
                         // the server of the mishap
                         try {
                             output.writeObject(":INVALID:" + "\n");
-                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
+                        // --- DEBUG STATEMENT ---
                         server.inform(username + " tried to start room with ID = " + roomID
                                 + ". ID is already in use so room was not started...");
                     }
@@ -227,7 +231,6 @@ public class ServerThread extends Thread {
                     if (server.containsRoom(roomID) && server.validRoomPassCombo(roomID, pass)) {
                         try {
                             output.writeObject(":VALID:" + "\n");
-                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -248,12 +251,12 @@ public class ServerThread extends Thread {
                         // the server of the mishap
                         try {
                             output.writeObject(":INVALID:" + "\n");
-                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
+                        // --- DEBUG STATEMENT ---
                         server.inform(username + " tried to join room with ID = " + roomID
                                 + ". Either the room does not exist or the password was incorrect, so the room was not joined...");
                     }
@@ -287,13 +290,15 @@ public class ServerThread extends Thread {
     public void joinRoom(String roomID) throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException {
         // If a user is already in a room, remove them from the old room
         leaveCurRoom();
+
+        // Adds server thread to room
         Room newRoom = server.getRoom(roomID);
-        newRoom.addUser(this);  // Adds server thread to room
-        System.out.println("UserNames: " + newRoom.getUsernames());
-        msgRoom(roomID, ":UPDATE:" + newRoom.getUsernames()); // Get all usernames in room. BroadCast Message
-        msgRoom(roomID, newRoom.getUserKeys());    // Get userkeys gets all keys in room. Get all keys in room broadcast message
-        System.out.println(newRoom.getUserKeys().size());
+        newRoom.addUser(this);
         curRoomID = roomID;
+
+        // Broadcast all usernames and keys in the room to present users
+        msgRoom(roomID, ":UPDATE:" + newRoom.getUsernames()); 
+        msgRoom(roomID, newRoom.getUserKeys());
     }
 
     /**
@@ -309,20 +314,27 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Broadcast message to all users in a room
+     * Broadcast a message to all users in a room
      */
     public void msgRoom(String roomID, String msg) {
         server.getRoom(roomID).broadcastMessage(msg);
     }
 
+    /**
+     * Broadcast a certificate to all users in a room
+     */
     public void msgRoom(String roomID, X509Certificate userCertificate){
         server.getRoom(roomID).broadcastMessage(userCertificate);
         System.out.println("Certificate Broadcasted");
     }
 
+    /**
+     * Broadcast a keyRing to all users in a room
+     */
     public void msgRoom(String roomID, ArrayList<X509Certificate> keyRing){
         server.getRoom(roomID).broadcastMessage(keyRing);
     }
+    
     /**
      * Send message to user with specific public key
      */
