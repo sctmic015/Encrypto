@@ -10,7 +10,10 @@
 
 import java.net.*;
 import java.io.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 
 public class UserRead extends Thread {
     private Socket socket;
@@ -70,10 +73,25 @@ public class UserRead extends Thread {
                     user.addCertificate(tempCertificate);
                     count ++;
                 }
-                else if (tempInput instanceof X509Certificate){
+                else if (tempInput instanceof X509Certificate && count == 1){
                     X509Certificate tempCertificate = (X509Certificate) tempInput;
                     serverCertificate = tempCertificate;
                     user.setServerCertificate(serverCertificate);
+                    count ++;
+                }
+                else if (tempInput instanceof  X509Certificate){
+                    X509Certificate tempCertificate = (X509Certificate) tempInput;
+                    X509Certificate newUserCertificate = tempCertificate;
+                    String alias = user.getFirstUser();
+                    System.out.println(alias);
+                   // user.updateConnectedUsersKeys();
+                    System.out.println("Current keyRing Size: " + user.keyStore.size());
+                }
+                else if (tempInput instanceof ArrayList<?>){
+                    ArrayList<X509Certificate> tempKeyStore = (ArrayList<X509Certificate>) tempInput;
+                    System.out.println("Received Key Store Size: " + tempKeyStore.size());
+                    user.updateConnectedUsersKeys(tempKeyStore);
+                    System.out.println("The size of users key arrayList: " + user.getKeyStoreSize());
                 }
                 else {
                     line = (String) tempInput;
@@ -96,6 +114,7 @@ public class UserRead extends Thread {
                         break;
                     } else if (command.equals("UPDATE")) {
                         user.updateConnectedUsers(contents);
+                        System.out.println(contents + "Test");
                     } else if (command.equals("VALID")) {
                         // Server accepts message from user, setup chat instance
                         user.setupChat();
@@ -108,7 +127,7 @@ public class UserRead extends Thread {
 
                 }
 
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException | KeyStoreException e) {
                 e.printStackTrace();
             }
         }

@@ -342,11 +342,11 @@ public class ChatWindow extends JFrame {
      */
     public void setupChat() {
         curRoomID = attemptedRoomID; // Room join/start success so current room ID is updated
+        lblChattingToUsername.setText("Room Name: " + curRoomID);
         if (splashOpen) {
             splashOpen = false; // Set the splash option off (Chat currently opening)
 
             // Set chatting roomID and clear splash components
-            lblChattingToUsername.setText("Room ID: " + curRoomID);
             pnlChatHistory.remove(lblLogoImage);
             pnlTypeAndSendMessage.remove(lblWelcomeText);
             pnlChatArea.setLayout(new BorderLayout());
