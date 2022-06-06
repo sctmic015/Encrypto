@@ -102,7 +102,7 @@ public class PGPUtil {
             unzipstring[i] = decompress(returnMessage[i]);
         }
         String decryptedMessage = unzipstring[0];
-        System.out.println("Decrypted Message: " + decryptedMessage);
+        //System.out.println("Decrypted Message: " + decryptedMessage);
 
         // 4: Verify Digital signature
         String receivedhash = decrypt(senderpubKey, null, unzipstring[1], 0);
@@ -111,11 +111,11 @@ public class PGPUtil {
         System.out.println("Calculated Hash: " + calculateHash);
         if (receivedhash.equals(calculateHash)){
             System.out.println("Received Hash and Calculated Hash are equal therefore authentication and confidentiality achieved");
-            return "Unverified Sender";
+            return decryptedMessage;
         }
         else
             System.out.println("Oops there is a hacker");
-            return decryptedMessage;
+            return "Unverified Sender";
     }
 
     /**
@@ -258,10 +258,11 @@ public class PGPUtil {
 
 
 
-        //String fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
+        String fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
 
-        //System.out.println(fromSender);
+        System.out.println(fromSender);
 
-        //receiver(fromSender, keyPairSender.getPublic(), keyPairReceiver.getPublic(), keyPairReceiver.getPrivate());
+        String received = receiver(fromSender, keyPairSender.getPublic(), keyPairReceiver.getPublic(), keyPairReceiver.getPrivate());
+        System.out.println(received);
     }
 }
