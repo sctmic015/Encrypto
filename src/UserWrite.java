@@ -16,7 +16,7 @@ import java.security.PublicKey;
 public class UserWrite extends Thread {
     private Socket socket;
     private User user;
-    private BufferedWriter output;
+    private ObjectOutputStream output;
     private ObjectOutput publicKeyOut;
     private PublicKey publicKey;
 
@@ -30,15 +30,16 @@ public class UserWrite extends Thread {
 
         // Setup the output handler
         try {
-            output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            publicKeyOut = new ObjectOutputStream(socket.getOutputStream());
+            output = new ObjectOutputStream(socket.getOutputStream());
+            //publicKeyOut = new ObjectOutputStream(socket.getOutputStream());
 
             // Send the user's username first
-            output.write(user.getUsername());
-            output.newLine();
+            output.writeObject(user.getUsername());
             output.flush();
-            publicKeyOut.writeObject(publicKey);
-            publicKeyOut.flush();
+            System.out.println(user.getUsername() + "\n");
+            //output.writeObject("\n");
+            output.writeObject(publicKey);
+            //output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,8 +55,8 @@ public class UserWrite extends Thread {
                 String text = user.getTextMessage();
                 // Only send text if there is something meaningful to send
                 if (text != "") {
-                    output.write(text);
-                    output.newLine();
+                    output.writeObject(text + "\n");
+                    //output.writeObject("\n");
                     output.flush();
 
                     // Message has been flushed, reset the text message

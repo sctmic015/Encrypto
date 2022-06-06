@@ -9,10 +9,13 @@
  */
 
 import org.bouncycastle.jcajce.provider.asymmetric.X509;
+import org.bouncycastle.openpgp.PGPKeyRing;
+import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 
 import java.awt.EventQueue;
 import java.net.*;
 import java.security.*;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.ArrayList;
@@ -33,14 +36,16 @@ public class User {
     private volatile ArrayList<String> connectedUsers;
     private KeyPair keyPair;
     private X509Certificate userCertificate;
+    private KeyStore keyStore;
 
     /**
      * Constructor to connect user to server
      */
-    public User(String host, int port) throws GeneralSecurityException {
+    public User(String host, int port) throws GeneralSecurityException, IOException {
         this.host = host;
         this.port = port;
         this.keyPair = userKey();
+        setUpKeyRing();
     }
 
     /**
@@ -183,6 +188,9 @@ public class User {
         return kpGen.generateKeyPair();
     }
 
+    public KeyPair getKeyPair(){
+        return this.keyPair;
+    }
     /**
      * Get the user's public key
      */
@@ -192,6 +200,16 @@ public class User {
 
     public void addCertificate(X509Certificate userCertificate){
         this.userCertificate = userCertificate;
+    }
+
+    public void setUpKeyRing() throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
+        this.keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        char[] pwdArray = "password".toCharArray();
+        this.keyStore.load(null, pwdArray);
+    }
+
+    public void addKey(String alias, X509Certificate certificate) throws KeyStoreException {
+        this.keyStore.setCertificateEntry(alias, certificate);
     }
 
     /**
@@ -204,10 +222,10 @@ public class User {
             System.out.println("Connected to server!");
 
             // Offload the read and write threads
-            userRead = new UserRead(socket, this);
             userWrite = new UserWrite(socket, this);
-            userRead.start();
             userWrite.start();
+            userRead = new UserRead(socket, this);
+            userRead.start();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -215,7 +233,7 @@ public class User {
         }
     }
 
-    public static void main(String[] args) throws GeneralSecurityException {
+    public static void main(String[] args) throws GeneralSecurityException, IOException {
         String wantedHost = "localhost";
         int wantedPort = 4444;
 
