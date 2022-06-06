@@ -396,8 +396,7 @@ public class ChatWindow extends JFrame {
             btnSend.addActionListener(new ActionListener() {
                 /**
                  * If a user is in a room, send typed message to the server to be broadcast to
-                 * each connected
-                 * user the room
+                 * each connected user the room
                  */
                 @Override
                 public void actionPerformed(ActionEvent e) {
