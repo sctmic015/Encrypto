@@ -249,7 +249,6 @@ public class Server {
 
     /**
      * Stores the user certificate
-     * @param userCertificate
      */
     public void addUserCertificate(X509Certificate userCertificate){
         userCertificates.add(userCertificate);

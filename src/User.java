@@ -54,7 +54,6 @@ public class User {
         this.host = host;
         this.port = port;
         this.keyPair = userKey();
-        setUpKeyRing();
     }
 
     /**
@@ -88,8 +87,6 @@ public class User {
 
     /**
      * Updates the list of connected users public key certificates
-     * @param keys
-     * @throws KeyStoreException
      */
     public void updateConnectedUsersKeys(ArrayList<X509Certificate> keys) throws KeyStoreException {
         this.keyRing = keys;
@@ -140,8 +137,6 @@ public class User {
 
     /**
      * Checks if text supplied as argument is a valid username
-     * 
-     * @param String: Username supplied to check if valid
      */
     public boolean validUsername() throws ClassNotFoundException {
         if (username.length() > 0 && username.length() < 18) {
@@ -197,12 +192,6 @@ public class User {
 
     /**
      * Hashes and encrypts the password then returns this version in string form
-     * @throws BadPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws UnsupportedEncodingException
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     * @throws InvalidKeyException
      */
     public String createHiddenPassword(String text) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
         // 1: Create a hash of the password
@@ -249,7 +238,6 @@ public class User {
 
     /**
      * Sets and stores the servers certificate
-     * @param certificate
      */
     public void setServerCertificate(X509Certificate certificate){
         this.serverCertificate = certificate;
