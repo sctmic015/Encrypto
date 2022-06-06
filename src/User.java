@@ -36,6 +36,7 @@ public class User {
     private volatile ArrayList<String> connectedUsers;
     private KeyPair keyPair;
     private X509Certificate userCertificate;
+    private X509Certificate serverCertificate;
     private KeyStore keyStore;
 
     /**
@@ -212,6 +213,9 @@ public class User {
         this.keyStore.setCertificateEntry(alias, certificate);
     }
 
+    public void setServerCertificate(X509Certificate certificate){
+        this.serverCertificate = certificate;
+    }
     /**
      * Begin user execution socket and launch read/write threads
      */

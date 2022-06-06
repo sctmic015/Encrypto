@@ -17,7 +17,7 @@ public class UserRead extends Thread {
     private User user;
     private ObjectInputStream input;
     private X509Certificate userCertificate;
-    private ObjectInput CertInput;
+    private X509Certificate serverCertificate;
 
     /**
      * Constructor
@@ -65,11 +65,16 @@ public class UserRead extends Thread {
             // Receive the text from server
             try {
                 Object tempInput = input.readObject();
-                if (tempInput instanceof X509Certificate){
+                if (tempInput instanceof X509Certificate && count == 0){
                     X509Certificate tempCertificate = (X509Certificate) tempInput;
                     user.addCertificate(tempCertificate);
+                    count ++;
                 }
-
+                else if (tempInput instanceof X509Certificate){
+                    X509Certificate tempCertificate = (X509Certificate) tempInput;
+                    serverCertificate = tempCertificate;
+                    user.setServerCertificate(serverCertificate);
+                }
                 else {
                     line = (String) tempInput;
                     // Using control commands, handle incoming message appropriately

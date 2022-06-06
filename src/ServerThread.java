@@ -53,6 +53,7 @@ public class ServerThread extends Thread {
             userPublicKey = (PublicKey) input.readObject();
             //server.addUserCertificates(username, "SHA256WithRSA", userPublicKey);
             X509Certificate userCertificate = server.createEndEntity(username, "SHA256WithRSA", userPublicKey);
+
             server.addUserCertificate(userCertificate);
             // --- DEBUG STATEMENT ---
             server.inform(userCertificate.toString());
@@ -63,6 +64,8 @@ public class ServerThread extends Thread {
             System.out.println(userCertificate instanceof X509Certificate);
             output.writeObject(userCertificate);
             System.out.println("Eish2");
+            X509Certificate serverCertificate = server.getServerCertificate();
+            output.writeObject(serverCertificate);
             //output.flush();
             //System.out.println(userPublicKey);
             // --- DEBUG STATEMENT ---

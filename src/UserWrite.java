@@ -55,7 +55,7 @@ public class UserWrite extends Thread {
                 String text = user.getTextMessage();
                 // Only send text if there is something meaningful to send
                 if (text != "") {
-                    output.writeObject(text + "\n");
+                    output.writeObject(text);
                     //output.writeObject("\n");
                     output.flush();
 
