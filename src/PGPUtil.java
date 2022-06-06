@@ -56,7 +56,7 @@ public class PGPUtil {
         return returnMessageOut;
     }
 
-    public static void receiver(String returnMessageOut, PublicKey senderpubKey, PublicKey receiverPublicKey, PrivateKey receiverPrivateKey) throws Exception {
+    public static String receiver(String returnMessageOut, PublicKey senderpubKey, PublicKey receiverPublicKey, PrivateKey receiverPrivateKey) throws Exception {
         // 1: Decrypt secret key of AES using private key
         String[] returnMessage = returnMessageOut.split(";", 3);
         System.out.println();
@@ -92,9 +92,11 @@ public class PGPUtil {
         System.out.println("Calculated Hash: " + calculateHash);
         if (receivedhash.equals(calculateHash)){
             System.out.println("Received Hash and Calculated Hash are equal therefore authentication and confidentiality achieved");
+            return "Unverified Sender";
         }
         else
             System.out.println("Oops there is a hacker");
+            return decryptedMessage;
     }
 
     public static String hashSHA(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
