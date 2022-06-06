@@ -1,20 +1,20 @@
 import java.net.*;
 import java.security.*;
-import java.security.cert.TrustAnchor;
+//import java.security.cert.TrustAnchor;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.*;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+//import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.cert.CertIOException;
-import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
+//import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.cert.X509v1CertificateBuilder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+//import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v1CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -32,7 +32,7 @@ import java.math.BigInteger;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Calendar;
+//import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -170,7 +170,7 @@ public class Server {
                 subject,
                 certKey);
 
-        JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
+        //JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
 
         certBldr.addExtension(Extension.basicConstraints,
                 true, new BasicConstraints(followingCACerts)).addExtension(Extension.keyUsage,
@@ -259,8 +259,8 @@ public class Server {
         String decryptedRoomPass = getRoom(roomID).getPass();
         
         try {
-            decryptedPassToCheck = PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), pass, 1); // Use CA private key to retrieve the hashed password to be checked
-            decryptedRoomPass = PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), decryptedRoomPass, 1); // Use CA private key to retrieve the hashed password of the room
+            decryptedPassToCheck = PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), pass, 0); // Use CA private key to retrieve the hashed password to be checked
+            decryptedRoomPass = PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), decryptedRoomPass, 0); // Use CA private key to retrieve the hashed password of the room
         } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | UnsupportedEncodingException
                 | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();

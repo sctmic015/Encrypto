@@ -8,7 +8,7 @@
  * @version June 2022
  */
 
-import org.bouncycastle.jcajce.provider.asymmetric.X509;
+//import org.bouncycastle.jcajce.provider.asymmetric.X509;
 import org.bouncycastle.operator.OperatorCreationException;
 
 import java.net.*;
@@ -127,7 +127,7 @@ public class ServerThread extends Thread {
 
             // Check for control commands, and handles command approriately
             String[] controlCommands = receivedText.split(":", 5);
-
+            
             // Assign the split variables appropriately
             String message = "";
             String command = "";

@@ -8,10 +8,10 @@
  * @version June 2022
  */
 
-import org.bouncycastle.crypto.ec.ECNewPublicKeyTransform;
-import org.bouncycastle.jcajce.provider.asymmetric.X509;
-import org.bouncycastle.openpgp.PGPKeyRing;
-import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
+//import org.bouncycastle.crypto.ec.ECNewPublicKeyTransform;
+//import org.bouncycastle.jcajce.provider.asymmetric.X509;
+//import org.bouncycastle.openpgp.PGPKeyRing;
+//import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 
 import java.awt.EventQueue;
 import java.net.*;
@@ -21,7 +21,13 @@ import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class User {
     private String username = "";
@@ -70,7 +76,7 @@ public class User {
     // TODO: and their associated public keys
     public void updateConnectedUsers(String connectedList) {
         // Remove the opening and closing brace
-        connectedList = connectedList.substring(1, connectedList.length() - 1);
+        connectedList = connectedList.substring(1, connectedList.length() - 2);
 
         // Split the list and store in a list data structure
         connectedUsers = new ArrayList<>(Arrays.asList(connectedList.split(", ")));
@@ -179,12 +185,18 @@ public class User {
 
     /**
      * Hashes and encrypts the password then returns this version in string form
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
      */
-    public String createHiddenPassword(String text) {
+    public String createHiddenPassword(String text) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
         // 1: Create a hash of the password
         String hashPassword= PGPUtil.hashSHA(text);
         // 2: Encrypt the hashsed password with the CA's public key
-        String encryptPassword = PGPUtil.asymmetricEncrypt(CAPubKey, null, hashPassword, 1);
+        String encryptPassword = PGPUtil.asymmetricEncrypt(serverCertificate.getPublicKey(), null, hashPassword, 1);
 
         return encryptPassword;
     }

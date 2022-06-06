@@ -8,6 +8,9 @@
  * @version June 2022
  */
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -26,7 +29,10 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.awt.BorderLayout;
@@ -194,7 +200,14 @@ public class ChatWindow extends JFrame {
                         String pswd = new String(password.getPassword());
                         if (validID(attemptedRoomID) && validPass(pswd)) {
                             // Hash and encrypt password for sending to server
-                            String hiddenPassword = user.createHiddenPassword(pswd);
+                            String hiddenPassword = "";
+                            try {
+                                hiddenPassword = user.createHiddenPassword(pswd);
+                            } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                                    | UnsupportedEncodingException | IllegalBlockSizeException
+                                    | BadPaddingException e1) {
+                                e1.printStackTrace();
+                            }
 
                             user.setTextMessage(":START:" + attemptedRoomID + ":" + hiddenPassword + ":");
                         } else {
@@ -233,7 +246,14 @@ public class ChatWindow extends JFrame {
                         String pswd = new String(password.getPassword());
                         if (validID(attemptedRoomID) && validPass(pswd)) {
                             // Hash and encrypt password for sending to server
-                            String hiddenPassword = user.createHiddenPassword(pswd);
+                            String hiddenPassword = "";
+                            try {
+                                hiddenPassword = user.createHiddenPassword(pswd);
+                            } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException
+                                    | UnsupportedEncodingException | IllegalBlockSizeException
+                                    | BadPaddingException e1) {
+                                e1.printStackTrace();
+                            }
 
                             user.setTextMessage(":JOIN:" + attemptedRoomID + ":" + hiddenPassword + ":");
                         } else {

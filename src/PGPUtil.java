@@ -1,5 +1,5 @@
-import org.bouncycastle.jcajce.provider.asymmetric.rsa.DigestSignatureSpi;
-import org.bouncycastle.openpgp.PGPPublicKey;
+//import org.bouncycastle.jcajce.provider.asymmetric.rsa.DigestSignatureSpi;
+//import org.bouncycastle.openpgp.PGPPublicKey;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
