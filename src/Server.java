@@ -256,13 +256,12 @@ public class Server {
      */
     public boolean validRoomPassCombo(String roomID, String pass) {
         String decryptedPassToCheck = "";
-        String decryptedRoomPass = getRoom(roomID).getPass();
+        String decryptedRoomPass = getRoom(roomID).getPass(); // Currently stored as an encrypted hash
         
         try {
-            decryptedPassToCheck = PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), pass, 0); // Use CA private key to retrieve the hashed password to be checked
-            decryptedRoomPass = PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), decryptedRoomPass, 0); // Use CA private key to retrieve the hashed password of the room
-        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | UnsupportedEncodingException
-                | IllegalBlockSizeException | BadPaddingException e) {
+            decryptedPassToCheck = PGPUtil.decrypt(null, keyPair.getPrivate(), pass, 1); // Use CA private key to retrieve the hashed password to be checked
+            decryptedRoomPass = PGPUtil.decrypt(null, keyPair.getPrivate(), decryptedRoomPass, 1); // Use CA private key to retrieve the hashed password of the room
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
