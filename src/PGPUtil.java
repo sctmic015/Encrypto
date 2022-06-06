@@ -12,10 +12,10 @@ import java.util.zip.GZIPOutputStream;
 
 public class PGPUtil {
 
-    public static String[] sender(String message, KeyPair senderKeyPair, PublicKey receiverPublicKey) throws Exception {
+    public static String sender(String message, KeyPair senderKeyPair, PublicKey receiverPublicKey) throws Exception {
         // 1: Create a hash of the message
         String hashMessage = hashSHA(message);
-        System.out.println("Sender Hash: " + hashMessage);
+        //System.out.println("Sender Hash: " + hashMessage);
         // 2: Digitally sign hash using private key
         String encryptedWithPriv = asymmetricEncrypt(senderKeyPair.getPublic(), senderKeyPair.getPrivate(), hashMessage, 0);
         //System.out.println(encryptedWithPriv);
@@ -41,16 +41,33 @@ public class PGPUtil {
         zippedAES[2] = encryptSharedWithPublic;
         String returnMessage[] = zippedAES;
 
-        return returnMessage;
+        String returnMessageOut = "";
+        for (int i = 0; i < returnMessage.length; i ++){
+            if (i <= 1) {
+                returnMessageOut += returnMessage[i] + ";";
+            }
+            else
+                returnMessageOut += returnMessage[i];
+            System.out.println(i + " : " + returnMessage[i]);
+        }
+
+        System.out.println("Done Sender");
+        System.out.println();
+        return returnMessageOut;
     }
 
-    public static void receiver(String returnMessage[], PublicKey senderpubKey, PublicKey receiverPublicKey, PrivateKey receiverPrivateKey) throws Exception {
+    public static void receiver(String returnMessageOut, PublicKey senderpubKey, PublicKey receiverPublicKey, PrivateKey receiverPrivateKey) throws Exception {
         // 1: Decrypt secret key of AES using private key
+        String[] returnMessage = returnMessageOut.split(";", 3);
+        System.out.println();
+        for (int i = 0; i < returnMessage.length; i ++){
+            System.out.println(i + " : " + returnMessage[i]);
+        }
         String receivedEncodedSecretKey = decrypt(receiverPublicKey, receiverPrivateKey, returnMessage[2], 1);
         byte[] receivedDecodedSecretKey = Base64.getDecoder().decode(receivedEncodedSecretKey);
         SecretKey actualKey = new SecretKeySpec(receivedDecodedSecretKey, 0, receivedDecodedSecretKey.length, "AES");
         //SecretKey actualKey = sharedKey;
-
+        System.out.println("Test");
         // 2: Decrypt Rest of message in returnMessage with actualKey
         String receiveDecryptedMessage[] = new String[returnMessage.length - 1];
         for (int i = 0; i < returnMessage.length-1; i++) {
@@ -185,7 +202,7 @@ public class PGPUtil {
         String input = "We are building the encrypto app";
         System.out.println("Sent input: " + input);
 
-        String[] fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
+        String fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
 
         System.out.println(fromSender);
 
