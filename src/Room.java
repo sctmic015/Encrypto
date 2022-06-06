@@ -8,7 +8,9 @@
  * @version June 2022
  */
 
+import java.security.KeyStore;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,12 +64,33 @@ public class Room {
         return usernames;
     }
 
+    public ArrayList<X509Certificate> getUserKeys() {
+        ArrayList<X509Certificate> userKeys = new ArrayList<>();
+        for (ServerThread sThread : sThreads){
+            userKeys.add(sThread.getUserCertificate());
+        }
+        return userKeys;
+    }
+
     /**
      * Broadcast the given message to all users the room
      */
     public void broadcastMessage(String msg) {
         for (ServerThread sThread : sThreads) {
             sThread.sendMsg(msg);
+        }
+    }
+
+    public void broadcastMessage(X509Certificate userCertificate){
+        for (ServerThread sThread : sThreads){
+            sThread.sendMsg(userCertificate);
+            System.out.println("Certificate broadcasted 2");
+        }
+    }
+
+    public void broadcastMessage(ArrayList<X509Certificate> keyRing){
+        for (ServerThread sThread : sThreads){
+            sThread.sendMsg(keyRing);
         }
     }
 
