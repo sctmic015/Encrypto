@@ -207,7 +207,7 @@ public class ServerThread extends Thread {
                         }
 
                         server.inform(username + " tried to join room with ID = " + roomID
-                                + ". Either the room does not exist or the password was incorrect, so room was not joined...");
+                                + ". Either the room does not exist or the password was incorrect, so the room was not joined...");
                     }
                     break;
                 case "MESSAGE":
