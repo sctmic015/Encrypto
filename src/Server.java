@@ -153,7 +153,7 @@ public class Server {
     }
 
     /**
-     * Creates an X509 certificate and returns it
+     * Creates an X509 certificate for the certification authority. Ie the server
      */
     private X509Certificate createCACertificate(
             X509Certificate signerCert, PrivateKey signerKey,
@@ -210,7 +210,7 @@ public class Server {
     }
 
     /**
-     * Creates end entity certificate and returns it
+     * Creates end entity certificate (users) and returns it
      */
     public X509Certificate createEndEntity(String username,
             String sigAlg, PublicKey certKey)
@@ -247,6 +247,10 @@ public class Server {
         userCertificates.add(userCertificate);
     }
 
+    /**
+     * Stores the user certificate
+     * @param userCertificate
+     */
     public void addUserCertificate(X509Certificate userCertificate){
         userCertificates.add(userCertificate);
     }

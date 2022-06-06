@@ -32,8 +32,6 @@ public class UserRead extends Thread {
         // Setup the input handler
         try {
             input = new ObjectInputStream(socket.getInputStream());
-            //X509Certificate userCertificate = (X509Certificate) CertInput.readObject();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,22 +47,26 @@ public class UserRead extends Thread {
         int count = 0;
         while (socket.isConnected() && user.isConnected()) {
             try {
+                // Reads in and stores users certificate signed by the server
                 Object tempInput = input.readObject();
                 if (tempInput instanceof X509Certificate && count == 0){
                     X509Certificate tempCertificate = (X509Certificate) tempInput;
                     user.setCertificate(tempCertificate);
                     count ++;
                 }
+                // Reads in and stores the servers certificate
                 else if (tempInput instanceof X509Certificate && count == 1){
                     X509Certificate tempCertificate = (X509Certificate) tempInput;
                     serverCertificate = tempCertificate;
                     user.setServerCertificate(serverCertificate);
                     count ++;
                 }
+                // Reads in Certificates of all Users in Current Room. Acts as a public key ring
                 else if (tempInput instanceof ArrayList<?>){
                     ArrayList<X509Certificate> tempKeyStore = (ArrayList<X509Certificate>) tempInput;
                     user.updateConnectedUsersKeys(tempKeyStore);
                 }
+                // Handles all message passing
                 else {
                     line = (String) tempInput;
                     // Using control commands, handle incoming message appropriately

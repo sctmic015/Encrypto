@@ -7,16 +7,34 @@ import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * PGPUtil for PGP implementation
+ *
+ * @author Bradley Culligan, CLLBRA005
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
+ * @version June 2022
+ */
+
 public class PGPUtil {
 
+    /**
+     * Sender side implementation of PGP
+     * @param message
+     * @param senderKeyPair
+     * @param receiverPublicKey
+     * @return
+     * @throws Exception
+     */
     public static String sender(String message, KeyPair senderKeyPair, PublicKey receiverPublicKey) throws Exception {
         // 1: Create a hash of the message
         String hashMessage = hashSHA(message);
-        //System.out.println("Sender Hash: " + hashMessage);
+        // System.out.println("Sender Hash: " + hashMessage);
         // 2: Digitally sign hash using private key
         String encryptedWithPriv = asymmetricEncrypt(senderKeyPair.getPublic(), senderKeyPair.getPrivate(), hashMessage, 0);
         //System.out.println(encryptedWithPriv);
@@ -57,31 +75,31 @@ public class PGPUtil {
         return returnMessageOut;
     }
 
+    /**
+     * Receiver side implementation of PGP
+     * @param returnMessageOut
+     * @param senderpubKey
+     * @param receiverPublicKey
+     * @param receiverPrivateKey
+     * @return
+     * @throws Exception
+     */
     public static String receiver(String returnMessageOut, PublicKey senderpubKey, PublicKey receiverPublicKey, PrivateKey receiverPrivateKey) throws Exception {
         // 1: Decrypt secret key of AES using private key
         String[] returnMessage = returnMessageOut.split(";", 3);
-        System.out.println();
-        for (int i = 0; i < returnMessage.length; i ++){
-            System.out.println(i + " : " + returnMessage[i]);
-        }
         String receivedEncodedSecretKey = decrypt(receiverPublicKey, receiverPrivateKey, returnMessage[2], 1);
         byte[] receivedDecodedSecretKey = Base64.getDecoder().decode(receivedEncodedSecretKey);
         SecretKey actualKey = new SecretKeySpec(receivedDecodedSecretKey, 0, receivedDecodedSecretKey.length, "AES");
-        //SecretKey actualKey = sharedKey;
-        System.out.println("Test");
+
         // 2: Decrypt Rest of message in returnMessage with actualKey
         String receiveDecryptedMessage[] = new String[returnMessage.length - 1];
         for (int i = 0; i < returnMessage.length-1; i++) {
             returnMessage[i] = decryptAES(returnMessage[i], actualKey);
-            //System.out.println(returnMessage[i]);
         }
-
-
         // 3: Unzip this message
         String unzipstring[] = new String[receiveDecryptedMessage.length];
         for (int i = 0; i < unzipstring.length; i++) {
             unzipstring[i] = decompress(returnMessage[i]);
-            //System.out.println(i + " : " + unzipstring[i]);
         }
         String decryptedMessage = unzipstring[0];
         System.out.println("Decrypted Message: " + decryptedMessage);
@@ -229,10 +247,21 @@ public class PGPUtil {
         String input = "We are building the encrypto app";
         System.out.println("Sent input: " + input);
 
-        String fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
+        PublicKey pub1 = keyPairReceiver.getPublic();
+        System.out.println("Pub1: " + pub1);
+        String encodedPubKey = Base64.getEncoder().encodeToString(pub1.getEncoded());
+        System.out.println("Pub1 encoded: " + encodedPubKey);
+        byte[] receivedDecodedSecretKey = Base64.getDecoder().decode(encodedPubKey);
+        String decodedPubKey = receivedDecodedSecretKey.toString();
+        System.out.println("Decoded key: " + decodedPubKey);
+        SecretKey actualKey = new SecretKeySpec(receivedDecodedSecretKey, 0, receivedDecodedSecretKey.length, "AES");
 
-        System.out.println(fromSender);
 
-        receiver(fromSender, keyPairSender.getPublic(), keyPairReceiver.getPublic(), keyPairReceiver.getPrivate());
+
+        //String fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
+
+        //System.out.println(fromSender);
+
+        //receiver(fromSender, keyPairSender.getPublic(), keyPairReceiver.getPublic(), keyPairReceiver.getPrivate());
     }
 }

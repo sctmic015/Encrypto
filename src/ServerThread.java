@@ -123,7 +123,7 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Send certifiacte from server to user connected on this server thread
+     * Send ArrayList of Certificates of users connected to room from server to user connected on this server thread
      */
     public void sendMsg(ArrayList<X509Certificate> keyRing){
         try{

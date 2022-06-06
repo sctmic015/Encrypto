@@ -86,13 +86,15 @@ public class User {
         updateRoomListOfConnectedUsers();
     }
 
+    /**
+     * Updates the list of connected users public key certificates
+     * @param keys
+     * @throws KeyStoreException
+     */
     public void updateConnectedUsersKeys(ArrayList<X509Certificate> keys) throws KeyStoreException {
         this.keyRing = keys;
     }
 
-    public int getKeyStoreSize(){
-        return keyRing.size();
-    }
 
     /**
      * Set text message
@@ -245,17 +247,10 @@ public class User {
         this.userCertificate = userCertificate;
     }
 
-
-    public void setUpKeyRing() throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
-        this.keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        char[] pwdArray = "password".toCharArray();
-        this.keyStore.load(null, pwdArray);
-    }
-
-    public void addKey(String alias, X509Certificate certificate) throws KeyStoreException {
-        this.keyStore.setCertificateEntry(alias, certificate);
-    }
-
+    /**
+     * Sets and stores the servers certificate
+     * @param certificate
+     */
     public void setServerCertificate(X509Certificate certificate){
         this.serverCertificate = certificate;
     }
