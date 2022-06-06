@@ -44,12 +44,15 @@ public class UserRead extends Thread {
         String line;
         X509Certificate certificate;
         int count = 0;
-
+        try {
+            CertInput = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         while (socket.isConnected() && user.isConnected()) {
             try {
                 if (count == 0) {
                     count ++;
-                    CertInput = new ObjectInputStream(socket.getInputStream());
                     if ((certificate = (X509Certificate) CertInput.readObject()) != null) {
                         user.addCertificate(certificate);
 
