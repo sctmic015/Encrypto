@@ -25,6 +25,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -257,7 +258,7 @@ public class ChatWindow extends JFrame {
                         if (user.disconnect()) {
                             new LoginWindow(new User(user.getHost(), user.getPort()));
                         }
-                    } catch (GeneralSecurityException exception) {
+                    } catch (GeneralSecurityException | IOException exception) {
                         exception.printStackTrace();
                     }
                 }

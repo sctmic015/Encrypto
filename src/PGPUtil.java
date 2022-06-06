@@ -1,4 +1,5 @@
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.DigestSignatureSpi;
+import org.bouncycastle.openpgp.PGPPublicKey;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
@@ -199,7 +200,6 @@ public class PGPUtil {
 
         KeyPair keyPairReceiver = kpGen.generateKeyPair();
 
-        SecretKey sharedKey = KeyGenerator.getInstance("AES").generateKey();
 
         String input = "We are building the encrypto app";
         System.out.println("Sent input: " + input);

@@ -20,8 +20,8 @@ import java.security.cert.X509Certificate;
 public class ServerThread extends Thread {
     private Socket socket;
     private Server server;
-    private BufferedReader input;
-    private BufferedWriter output;
+    private ObjectInputStream input;
+    private ObjectOutputStream output;
     private ObjectInput userPublicKeyInput;
     private ObjectOutput userCertificateOutput;
     private String username;
@@ -39,26 +39,34 @@ public class ServerThread extends Thread {
 
         // Setup input/output handlers
         try {
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            userPublicKeyInput = new ObjectInputStream(socket.getInputStream());
-            userCertificateOutput = new ObjectOutputStream(socket.getOutputStream());
+            //input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            //output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            //userPublicKeyInput = new ObjectInputStream(socket.getInputStream());
+            //userCertificateOutput = new ObjectOutputStream(socket.getOutputStream());
+            input = new ObjectInputStream(socket.getInputStream());
+            output = new ObjectOutputStream(socket.getOutputStream());
 
             // ServerThread is created on login attempt so username will be sent. Ask the
             // server to add this username
-            username = input.readLine();
-            // System.out.println(username);
-            userPublicKey = (PublicKey) userPublicKeyInput.readObject();
+            username = (String) input.readObject();
+            System.out.println(username);
+            userPublicKey = (PublicKey) input.readObject();
             //server.addUserCertificates(username, "SHA256WithRSA", userPublicKey);
             X509Certificate userCertificate = server.createEndEntity(username, "SHA256WithRSA", userPublicKey);
+
             server.addUserCertificate(userCertificate);
             // --- DEBUG STATEMENT ---
             server.inform(userCertificate.toString());
             //server.printUserCertificates();
             //output.write("Message");
             //output.write(userCertificate.toString());
-            userCertificateOutput.writeObject(userCertificate);
-            userCertificateOutput.flush();
+            System.out.println("Eish1");
+            System.out.println(userCertificate instanceof X509Certificate);
+            output.writeObject(userCertificate);
+            System.out.println("Eish2");
+            X509Certificate serverCertificate = server.getServerCertificate();
+            output.writeObject(serverCertificate);
+            //output.flush();
             //System.out.println(userPublicKey);
             // --- DEBUG STATEMENT ---
             server.inform(userPublicKey.toString());
@@ -91,8 +99,8 @@ public class ServerThread extends Thread {
      */
     public void sendMsg(String msg) {
         try {
-            output.write(msg);
-            output.newLine();
+            output.writeObject(msg + "\n");
+            //output.writeObject("\n");
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,9 +119,9 @@ public class ServerThread extends Thread {
         while (running) {
             // Receive the text from user
             try {
-                receivedText = input.readLine();
+                receivedText = (String )input.readObject();
                 server.inform(receivedText);
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
@@ -141,8 +149,8 @@ public class ServerThread extends Thread {
                         leaveCurRoom();
                         // Send message to user to shut down connection
                         try {
-                            output.write(":SHUTDOWN:");
-                            output.newLine();
+                            output.writeObject(":SHUTDOWN:" + "\n");
+                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -155,8 +163,8 @@ public class ServerThread extends Thread {
                 case "START":
                     if (!server.containsRoom(roomID)) {
                         try {
-                            output.write(":VALID:");
-                            output.newLine();
+                            output.writeObject(":VALID:" + "\n");
+                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -166,8 +174,8 @@ public class ServerThread extends Thread {
                         // Error setting up room, tell user there was an invalid operation and inform
                         // the server of the mishap
                         try {
-                            output.write(":INVALID:");
-                            output.newLine();
+                            output.writeObject(":INVALID:" + "\n");
+                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -180,8 +188,8 @@ public class ServerThread extends Thread {
                 case "JOIN":
                     if (server.containsRoom(roomID) && server.validRoomPassCombo(roomID, pass)) {
                         try {
-                            output.write(":VALID:");
-                            output.newLine();
+                            output.writeObject(":VALID:" + "\n");
+                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -191,8 +199,8 @@ public class ServerThread extends Thread {
                         // Error setting up room, tell user there was an invalid operation and inform
                         // the server of the mishap
                         try {
-                            output.write(":INVALID:");
-                            output.newLine();
+                            output.writeObject(":INVALID:" + "\n");
+                            //output.writeObject("\n");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
