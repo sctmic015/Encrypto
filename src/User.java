@@ -181,7 +181,8 @@ public class User {
      */
     public boolean disconnect() {
         connected = false;
-        System.out.println("Disconnected from server");
+        // --- DEBUG STATEMENT ---
+        inform("Disconnected from server");
         return !connected;
     }
 
@@ -189,7 +190,7 @@ public class User {
      * User inform method for testing
      */
     public void inform(String text) {
-        System.out.println(text);
+        System.out.println("> " + text);
     }
 
     /**
@@ -266,7 +267,8 @@ public class User {
         try {
             socket = new Socket(host, port);
             connected = true;
-            System.out.println("Connected to server!");
+            // --- DEBUG STATEMENT ---
+            inform("Connected to server!");
 
             // Offload the read and write threads
             userWrite = new UserWrite(socket, this);
@@ -291,6 +293,7 @@ public class User {
             wantedHost = args[0];
             wantedPort = Integer.parseInt((args[0]));
         } else if (args.length > 2) {
+            // --- DEBUG STATEMENT ---
             System.err.println(
                     "Please ensure the proper arguments have been passed. Start a user with no arguments to connect to server on localhost with port 4444. Alternatively, pass a single argument for different port number (still hosted on localhost), or pass two arguments server hostname and port number respectively.");
             System.exit(1);
