@@ -44,7 +44,8 @@ public class User {
     private KeyPair keyPair;
     private X509Certificate userCertificate;
     private X509Certificate serverCertificate;
-    private KeyStore keyStore;
+    public KeyStore keyStore;
+    public ArrayList<X509Certificate> keyRing;
 
     /**
      * Constructor to connect user to server
@@ -83,6 +84,19 @@ public class User {
 
         // Pass the updated list to the GUI
         updateRoomListOfConnectedUsers();
+    }
+
+    public void updateConnectedUsersKeys(ArrayList<X509Certificate> keys) throws KeyStoreException {
+        System.out.println("Size in User Class: " + keys.size());
+        this.keyRing = keys;
+    }
+
+    public int getKeyStoreSize(){
+        return keyRing.size();
+    }
+
+    public String getFirstUser(){
+        return connectedUsers.get(0);
     }
 
     /**
