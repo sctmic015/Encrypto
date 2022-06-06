@@ -23,8 +23,11 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.security.auth.x500.X500Principal;
-import java.io.IOException;
+
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -248,12 +251,24 @@ public class Server {
         userCertificates.add(userCertificate);
     }
 
-    /* public void printUserCertificates(){
-        for (int i = 0; i < userCertificates.size(); i ++){
-            System.out.println(userCertificates.get(i));
-            System.out.println(i);
+    /**
+     * Checks if the room ID's password hash, matches the password hash supplied when decrypted by the CA's private key
+     */
+    public boolean validRoomPassCombo(String roomID, String pass) {
+        String decryptedPassToCheck = "";
+        String decryptedRoomPass = getRoom(roomID).getPass();
+        
+        try {
+            decryptedPassToCheck = PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), pass, 1); // Use CA private key to retrieve the hashed password to be checked
+            decryptedRoomPass = PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), decryptedRoomPass, 1); // Use CA private key to retrieve the hashed password of the room
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | UnsupportedEncodingException
+                | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
         }
-    } */
+
+        return decryptedPassToCheck.equals(decryptedRoomPass);
+
+    }
 
     /**
      * Starts server listening for connections

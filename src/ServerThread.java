@@ -178,7 +178,7 @@ public class ServerThread extends Thread {
                     }
                     break;
                 case "JOIN":
-                    if (server.containsRoom(roomID) && server.getRoom(roomID).getPass().equals(pass)) {
+                    if (server.containsRoom(roomID) && server.validRoomPassCombo(roomID, pass)) {
                         try {
                             output.write(":VALID:");
                             output.newLine();

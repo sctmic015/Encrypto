@@ -174,9 +174,9 @@ public class ChatWindow extends JFrame {
 
                     // Popup design
                     JTextField roomID = new JTextField(10);
-                    JTextField password = new JTextField(10);
-                    // TODO Switch to JPasswordField for submission ^
-                    // JPasswordField password = new JPasswordField(10);
+                    //JTextField password = new JTextField(10);
+                    JPasswordField password = new JPasswordField(10);
+
                     JPanel myPanel = new JPanel();
                     myPanel.add(new JLabel("Enter new room name:"));
                     myPanel.add(roomID);
@@ -190,9 +190,12 @@ public class ChatWindow extends JFrame {
                     if (result == JOptionPane.OK_OPTION) {
                         // If roomID and password are valid strings, send message to server
                         attemptedRoomID = roomID.getText();
-                        String pswd = password.getText();
+                        String pswd = new String(password.getPassword());
                         if (validID(attemptedRoomID) && validPass(pswd)) {
-                            user.setTextMessage(":START:" + attemptedRoomID + ":" + pswd + ":");
+                            // Hash and encrypt password for sending to server
+                            String hiddenPassword = user.createHiddenPassword(pswd);
+
+                            user.setTextMessage(":START:" + attemptedRoomID + ":" + hiddenPassword + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
                                     "Invalid room ID or password. Please re-enter fields...", "Error",
@@ -209,9 +212,8 @@ public class ChatWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == btnJoinRoom) {
                     JTextField roomID = new JTextField(10);
-                    JTextField password = new JTextField(10);
-                    // TODO Switch to JPasswordField for submission ^
-                    // JPasswordField password = new JPasswordField(10);
+                    // JTextField password = new JTextField(10);
+                    JPasswordField password = new JPasswordField(10);
 
                     // Popup design
                     JPanel myPanel = new JPanel();
@@ -227,9 +229,12 @@ public class ChatWindow extends JFrame {
                     if (result == JOptionPane.OK_OPTION) {
                         // If roomID and password are valid strings, send message to server
                         attemptedRoomID = roomID.getText();
-                        String pswd = password.getText();
+                        String pswd = new String(password.getPassword());
                         if (validID(attemptedRoomID) && validPass(pswd)) {
-                            user.setTextMessage(":JOIN:" + attemptedRoomID + ":" + pswd + ":");
+                            // Hash and encrypt password for sending to server
+                            String hiddenPassword = user.createHiddenPassword(pswd);
+
+                            user.setTextMessage(":JOIN:" + attemptedRoomID + ":" + hiddenPassword + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
                                     "Invalid room ID or password. Please re-enter fields...", "Error",
@@ -253,7 +258,7 @@ public class ChatWindow extends JFrame {
                             new LoginWindow(new User(user.getHost(), user.getPort()));
                         }
                     } catch (GeneralSecurityException exception) {
-                        System.out.println("Whoopsie");
+                        exception.printStackTrace();
                     }
                 }
             }

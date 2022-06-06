@@ -8,6 +8,7 @@
  * @version June 2022
  */
 
+import org.bouncycastle.crypto.ec.ECNewPublicKeyTransform;
 import org.bouncycastle.jcajce.provider.asymmetric.X509;
 
 import java.awt.EventQueue;
@@ -168,6 +169,18 @@ public class User {
      */
     public void inform(String text) {
         System.out.println(text);
+    }
+
+    /**
+     * Hashes and encrypts the password then returns this version in string form
+     */
+    public String createHiddenPassword(String text) {
+        // 1: Create a hash of the password
+        String hashPassword= PGPUtil.hashSHA(text);
+        // 2: Encrypt the hashsed password with the CA's public key
+        String encryptPassword = PGPUtil.asymmetricEncrypt(CAPubKey, null, hashPassword, 1);
+
+        return encryptPassword;
     }
 
     /**
