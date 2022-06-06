@@ -71,7 +71,6 @@ public class PGPUtil {
         }
 
         System.out.println("Done Sender");
-        System.out.println();
         return returnMessageOut;
     }
 
@@ -110,7 +109,7 @@ public class PGPUtil {
         String calculateHash = hashSHA(decryptedMessage);
         System.out.println("Calculated Hash: " + calculateHash);
         if (receivedhash.equals(calculateHash)){
-            System.out.println("Received Hash and Calculated Hash are equal therefore authentication and confidentiality achieved");
+            System.out.println("Received Hash and Calculated Hash are equal.");
             return "Unverified Sender";
         }
         else
@@ -256,12 +255,8 @@ public class PGPUtil {
         System.out.println("Decoded key: " + decodedPubKey);
         SecretKey actualKey = new SecretKeySpec(receivedDecodedSecretKey, 0, receivedDecodedSecretKey.length, "AES");
 
-
-
         //String fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
-
         //System.out.println(fromSender);
-
         //receiver(fromSender, keyPairSender.getPublic(), keyPairReceiver.getPublic(), keyPairReceiver.getPrivate());
     }
 }

@@ -31,13 +31,10 @@ public class UserWrite extends Thread {
         // Setup the output handler
         try {
             output = new ObjectOutputStream(socket.getOutputStream());
-            //publicKeyOut = new ObjectOutputStream(socket.getOutputStream());
 
             // Send the user's username first
             output.writeObject(user.getUsername());
             output.flush();
-            System.out.println(user.getUsername() + "\n");
-            //output.writeObject("\n");
             output.writeObject(publicKey);
             //output.flush();
         } catch (IOException e) {
