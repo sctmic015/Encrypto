@@ -8,9 +8,12 @@
  * @version June 2022
  */
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.bouncycastle.jcajce.provider.asymmetric.dsa.DSASigner.stdDSA;
 
 public class Room {
 
@@ -65,6 +68,17 @@ public class Room {
     public void broadcastMessage(String msg) {
         for (ServerThread sThread : sThreads) {
             sThread.sendMsg(msg);
+        }
+    }
+
+    /**
+     * Message user with supplied public key
+     */
+    public void msgUser(PublicKey pubKey, String cipherText) {
+        for (ServerThread sThread : sThreads) {
+            if (sThread.getPublicKey().equals(pubKey)) {
+                sThread.sendMsg(cipherText);
+            }
         }
     }
 

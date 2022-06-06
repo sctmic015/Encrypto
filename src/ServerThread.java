@@ -80,6 +80,13 @@ public class ServerThread extends Thread {
     }
 
     /**
+     * Returns the public key of the user connected to this server thread
+     */
+    public PublicKey getPublicKey() {
+        return userPublicKey;
+    }
+
+    /**
      * Send message from server to user connected on this server thread
      */
     public void sendMsg(String msg) {
@@ -197,7 +204,8 @@ public class ServerThread extends Thread {
                     break;
                 case "MESSAGE":
                     if (server.containsRoom(roomID)) {
-                        msgRoom(roomID, ":MESSAGE:" + message);
+                        msgRoom(roomID, ":MESSAGE:" + message); // TODO: Use public key object being sent to message end-to-end 
+                        // TODO: msgUser(roomID, pubKey, ":MESSAGE:" + message);
                     } else {
                         System.err.println("Invalid roomID to send message...");
                     }
@@ -246,5 +254,12 @@ public class ServerThread extends Thread {
      */
     public void msgRoom(String roomID, String msg) {
         server.getRoom(roomID).broadcastMessage(msg);
+    }
+
+    /**
+     * Send message to user with specific public key
+     */
+    public void msgUser(String roomID, PublicKey pubKey, String cipherText) {
+        server.getRoom(roomID).msgUser(pubKey, cipherText);
     }
 }
