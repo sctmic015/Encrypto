@@ -100,6 +100,9 @@ public class PGPUtil {
             return decryptedMessage;
     }
 
+    /**
+     * Returns the hash of a given string using the SHA-512 algorithm
+     */
     public static String hashSHA(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         String out = "";
         MessageDigest digest = MessageDigest.getInstance("SHA-512");
@@ -109,6 +112,10 @@ public class PGPUtil {
         return out;
     }
 
+    /**
+     * For a given key pair and message, encrypt and return the message using either the public or private key
+     * depending on the mode chosen. Encryption uses the RSA algorithm in ECB mode with PKCS1Padding.
+     */
     public static String asymmetricEncrypt(PublicKey publicKey, PrivateKey privateKey, String message, int mode) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         if (mode == 0){
@@ -123,6 +130,9 @@ public class PGPUtil {
         }
     }
 
+    /**
+     * Compresses a given message using gzip compression
+     */
     public static String compress(String data) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length());
         GZIPOutputStream gzip = new GZIPOutputStream(bos);
@@ -133,6 +143,9 @@ public class PGPUtil {
         return Base64.getEncoder().encodeToString(compressed);
     }
 
+    /**
+     * Encrypts a message with a given AES generated shared key. 
+     */
     public static String encryptAES(String str, SecretKey key) throws Exception {
         Cipher ecipher = Cipher.getInstance("AES");
         ecipher.init(Cipher.ENCRYPT_MODE, key);
@@ -144,6 +157,10 @@ public class PGPUtil {
         return Base64.getEncoder().encodeToString(enc);
     }
 
+    /**
+     * For a given key pair and encrypted message, decrypt and return the message using either the public or private key
+     * depending on the mode chosen. Decryption uses the RSA algorithm.
+     */
     public static String decrypt(PublicKey publicKey,PrivateKey privateKey, String st, int ch) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         byte[] encrypted = Base64.getDecoder().decode(st);
@@ -159,6 +176,9 @@ public class PGPUtil {
         }
     }
 
+    /**
+     * Decrypts some ciphertext with a given AES generated shared key. 
+     */
     public static String decryptAES(String st, SecretKey key) throws Exception {
         Cipher dcipher = Cipher.getInstance("AES");
         dcipher.init(Cipher.DECRYPT_MODE, key);
@@ -169,6 +189,9 @@ public class PGPUtil {
         return new String(utf8, "UTF8");
     }
 
+    /**
+     * Unzips/decompresses a compressed message
+     */
     public static String decompress(String st) throws IOException {
         byte[] compressed = Base64.getDecoder().decode(st);
         ByteArrayInputStream bis = new ByteArrayInputStream(compressed);
@@ -185,6 +208,9 @@ public class PGPUtil {
         return sb.toString();
     }
 
+    /**
+     * Main method to test entire PGP protocol.
+     */
     public static void main (String[] args) throws Exception {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
@@ -199,7 +225,6 @@ public class PGPUtil {
         kpGen2.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
 
         KeyPair keyPairReceiver = kpGen.generateKeyPair();
-
 
         String input = "We are building the encrypto app";
         System.out.println("Sent input: " + input);
