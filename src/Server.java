@@ -255,6 +255,19 @@ public class Server {
     }
 
     /**
+     * Signs the certificate supplied and returns it
+     */
+    public String getSignedCert(X509Certificate cert) {
+        try {
+            return PGPUtil.asymmetricEncrypt(null, keyPair.getPrivate(), cert.toString(), 0);
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | UnsupportedEncodingException
+                | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+        }
+        return ""; // Failure
+    }
+
+    /**
      * Checks if the room ID's password hash, matches the password hash supplied when decrypted by the CA's private key
      */
     public boolean validRoomPassCombo(String roomID, String pass) {

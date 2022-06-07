@@ -12,18 +12,24 @@ import java.util.ArrayList;
 
 public class KeyRingObject implements Serializable {
     private String username;
+    private String signedCert;
     private X509Certificate userCertificate;
 
     /**
      * Constructor to connect user to server
      */
-    public KeyRingObject(String username, X509Certificate userCertificate) throws GeneralSecurityException, IOException {
+    public KeyRingObject(String username, X509Certificate userCertificate, String signedCert) throws GeneralSecurityException, IOException {
         this.username = username;
         this.userCertificate = userCertificate;
+        this.signedCert = signedCert;
     }
 
     public X509Certificate getUserCertificate() {
         return userCertificate;
+    }
+
+    public String getSignedCert() {
+        return signedCert;
     }
 
     public String getUsername() {

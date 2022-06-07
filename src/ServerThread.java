@@ -53,7 +53,8 @@ public class ServerThread extends Thread {
             X509Certificate userCertificate = server.createEndEntity(username, "SHA256WithRSA", userPublicKey);
             this.userCertificate = userCertificate;
             server.addUserCertificate(userCertificate);
-            this.keyRingObject = new KeyRingObject(username, this.userCertificate);
+            String signedCert = server.getSignedCert(userCertificate);
+            this.keyRingObject = new KeyRingObject(username, this.userCertificate, signedCert);
 
             // Send user and server certificates back to user
             output.writeObject(userCertificate);

@@ -45,7 +45,7 @@ public class User {
     private X509Certificate userCertificate;
     private X509Certificate serverCertificate;
     public KeyStore keyStore;
-    public ArrayList<KeyRingObject> keyRing;
+    public ArrayList<KeyRingObject> keyRing = new ArrayList<>();
 
     /**
      * Constructor to connect user to server
@@ -73,7 +73,6 @@ public class User {
     /**
      * Updates the list of connected users
      */
-    // TODO: and their associated public keys
     public void updateConnectedUsers(String connectedList) {
         // Remove the opening and closing brace
         connectedList = connectedList.substring(1, connectedList.length() - 2);
@@ -92,9 +91,52 @@ public class User {
      * Updates the list of connected users public key certificates
      */
     public void updateConnectedUsersKeys(ArrayList<KeyRingObject> keys) throws KeyStoreException {
-        this.keyRing = keys;
+        keyRing.clear();
+        for (KeyRingObject key : keys) {
+            /* if (authenticate(key)) {
+                inform("Authenticated and added user: " + key.getUsername());
+                keyRing.add(key);
+            } */
+            X509Certificate certToAuthenticate = key.getUserCertificate();
+            try {
+                certToAuthenticate.verify(serverCertificate.getPublicKey());
+                inform("Authenticated and added user: " + key.getUsername());
+                keyRing.add(key);
+            } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+                    | SignatureException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
+    /**
+     * Use the CA's public key to authenticate a connected user's certificate
+     */
+    /* public boolean authenticate(KeyRingObject key) {
+        X509Certificate certToAuthenticate = key.getUserCertificate();
+        String signedCert = key.getSignedCert();
+        String unsignedCertToCheck = "";
+
+        // Use CA's public key to decrypt the signed certificate
+        try {
+            unsignedCertToCheck = PGPUtil.asymmetricEncrypt(serverCertificate.getPublicKey(), null, signedCert, 1);
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | UnsupportedEncodingException
+                | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+        }
+        try {
+            certToAuthenticate.verify(serverCertificate.getPublicKey());
+        } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+                | SignatureException e) {
+            e.printStackTrace();
+        } */
+/* 
+        inform(unsignedCertToCheck);
+        inform(certToAuthenticate.toString()); */
+
+        // Compare certificate results
+       /*  return unsignedCertToCheck.equals(certToAuthenticate.toString());
+    } */
 
     public ArrayList<KeyRingObject> getKeyRing() {
         return keyRing;
