@@ -84,7 +84,7 @@ public class PGPUtil {
      * @return
      * @throws Exception
      */
-    public static String receiver(String returnMessageOut, PublicKey senderpubKey, PublicKey receiverPublicKey, PrivateKey receiverPrivateKey) throws Exception {
+    public static String receiver(String returnMessageOut, PublicKey senderPubKey, PublicKey receiverPublicKey, PrivateKey receiverPrivateKey) throws Exception {
         // 1: Decrypt secret key of AES using private key
         String[] returnMessage = returnMessageOut.split(";", 3);
         String receivedEncodedSecretKey = decrypt(receiverPublicKey, receiverPrivateKey, returnMessage[2], 1);
@@ -105,7 +105,7 @@ public class PGPUtil {
         //System.out.println("Decrypted Message: " + decryptedMessage);
 
         // 4: Verify Digital signature
-        String receivedhash = decrypt(senderpubKey, null, unzipstring[1], 0);
+        String receivedhash = decrypt(senderPubKey, null, unzipstring[1], 0);
         System.out.println("Received Hash: " + receivedhash);
         String calculateHash = hashSHA(decryptedMessage);
         System.out.println("Calculated Hash: " + calculateHash);

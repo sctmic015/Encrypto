@@ -12,6 +12,7 @@ import java.net.*;
 import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
@@ -94,14 +95,25 @@ public class UserRead extends Thread {
                     } else if (command.equals("INVALID")) {
                         user.warnFailure();
                     } else if (command.equals("MESSAGE")) {
-
-                        user.setReceivedMessage(contents);
-                        user.addNewMessage();
+                        String[] fromUSer = getUserMessage(contents, user.getUsername());
+                        String senderUserName = fromUSer[0].trim();
+                        for (int i = 0; i < user.getKeyRing().size(); i ++){
+                            if (user.getKeyRing().get(i).matchAlias(senderUserName)) {
+                                PublicKey senderPublicKey = user.getKeyRing().get(i).getPublicKey();
+                                String userMessage = fromUSer[1];
+                                System.out.println(userMessage);
+                                userMessage = PGPUtil.receiver(userMessage, senderPublicKey, user.getKeyPair().getPublic(), user.getKeyPair().getPrivate());
+                                user.setReceivedMessage(userMessage);
+                                user.addNewMessage();
+                            }
+                        }
                     }
 
                 }
 
             } catch (IOException | ClassNotFoundException | KeyStoreException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -112,5 +124,27 @@ public class UserRead extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String[] getUserMessage(String inputMessage, String Username){
+        System.out.println(inputMessage);
+        String[] incomingSplit = inputMessage.split("]");
+        String header = incomingSplit[0].replaceFirst("\\[", "");
+        System.out.println(header);
+        String initialMessage = incomingSplit[1].trim();
+        String[] messageSplit = initialMessage.split(">");
+        String[] outString = new String[2];
+        outString[0] = header;
+        for (int i = 1; i < messageSplit.length; i ++) {
+            String[] userSplit = messageSplit[i].split("<");
+            String userName = userSplit[0];
+            String encryptedMessage = userSplit[1];
+            if (userName.equals(Username)){
+                outString[1] = encryptedMessage;
+                return outString;
+            }
+        }
+        outString[1] = "Error";
+        return outString;
     }
 }
