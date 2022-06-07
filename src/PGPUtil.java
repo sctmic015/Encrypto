@@ -126,7 +126,7 @@ public class PGPUtil {
             System.out.println();
             return decryptedMessage;
         } else
-            System.out.println("Oops there is a hacker");
+            System.out.println("Oops there is a hacker.");
         return "Unverified Sender";
     }
 
