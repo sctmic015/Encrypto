@@ -94,6 +94,11 @@ public class UserRead extends Thread {
                     } else if (command.equals("INVALID")) {
                         user.warnFailure();
                     } else if (command.equals("MESSAGE")) {
+                        try {
+                            contents = user.getPlainText(contents);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         user.setReceivedMessage(contents);
                         user.addNewMessage();
                     }

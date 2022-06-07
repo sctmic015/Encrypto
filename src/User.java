@@ -21,10 +21,13 @@ import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+
+import org.bouncycastle.crypto.params.KeyParameter;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -188,6 +191,46 @@ public class User {
      */
     public void inform(String text) {
         System.out.println("> " + text);
+    }
+
+    /**
+     * For each user connected on the keyRing, encrypt the message and send tell the server to send the encrypted message
+     * @throws Exception
+     */
+    public synchronized void sendMessage(String messageHeader, String messageContents) throws Exception {
+        for (X509Certificate receiverCertificate : keyRing) {
+            PublicKey pubKey = receiverCertificate.getPublicKey();
+
+            String cipherText = PGPUtil.sender(messageContents, keyPair, pubKey); // Cipher the message contents by PGP
+            String encodedPubKey = Base64.getEncoder().encodeToString(pubKey.getEncoded());
+
+            setTextMessage(messageHeader + encodedPubKey + ":" + cipherText);
+        }
+    }
+
+    /**
+     * Returns the plaintext from a PGP received ciphertext
+     * @throws Exception
+     */
+    public String getPlainText(String cipherText) throws Exception {
+        // Separate content strings receievd for ciphertext msg and sender pub key
+        String msg = "";
+        String senderPublicKey = "";
+        cipherText = cipherText.substring(0, cipherText.lastIndexOf(":"));
+        int sep = cipherText.lastIndexOf(":");
+        msg = cipherText.substring(0, sep);
+        senderPublicKey = cipherText.substring(sep+1, cipherText.length());
+
+        // Go through the list of keys on the keyring and choose the matching certificate to be used as the sender's certificate
+        PublicKey senderpubKey = userCertificate.getPublicKey(); // Initialised to itself
+        for (X509Certificate cert : keyRing) {
+            String encodedPubKey = Base64.getEncoder().encodeToString(cert.getPublicKey().getEncoded());
+            if (senderPublicKey.equals(encodedPubKey)) {
+                senderpubKey = cert.getPublicKey();
+            }
+        }
+
+        return PGPUtil.receiver(cipherText, senderpubKey, keyPair.getPublic(), keyPair.getPrivate());
     }
 
     /**

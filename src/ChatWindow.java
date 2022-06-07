@@ -404,9 +404,18 @@ public class ChatWindow extends JFrame {
                         String messageContents = txtMessage.getText();
                         txtMessage.setText(hint);
 
-                        // Set the user chat contents for sending to server
+                        // TODO: Use this if things break
+                        /* // Set the user chat contents for sending to server
                         user.setTextMessage(
-                                ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents);
+                                ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents); */
+                        // Tell user to send the message to all room participants
+                        String messageHeader = ":MESSAGE:" + curRoomID + ":";
+                        messageContents = "[" + user.getUsername() + "] " + messageContents;
+                        try {
+                            user.sendMessage(messageHeader, messageContents);
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
                     }
 
                 }

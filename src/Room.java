@@ -12,6 +12,7 @@ import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -103,10 +104,11 @@ public class Room {
     /**
      * Message user with supplied public key
      */
-    public void msgUser(PublicKey pubKey, String cipherText) {
+    public void msgUser(String pubKey, String cipherText, String senderPubKey) {
         for (ServerThread sThread : sThreads) {
-            if (sThread.getPublicKey().equals(pubKey)) {
-                sThread.sendMsg(cipherText);
+            String roomPubKeyEncoded = Base64.getEncoder().encodeToString(sThread.getPublicKey().getEncoded());
+            if (roomPubKeyEncoded.equals(pubKey)) {
+                sThread.sendMsg(cipherText + ":" + senderPubKey + ":");
             }
         }
     }

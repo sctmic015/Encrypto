@@ -20,7 +20,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 
 public class ServerThread extends Thread {
     private Socket socket;
@@ -97,6 +99,19 @@ public class ServerThread extends Thread {
     public PublicKey getPublicKey() {
         return userPublicKey;
     }
+
+/*     /**
+     * Send message from server to user connected on this server thread specifying public key
+     *
+    public void sendMsg(String msg, String senderPubKey) {
+        try {
+            output.writeObject(msg + ":" + senderPubKey + ":" + "\n");
+            //output.writeObject("\n");
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    } */
 
     /**
      * Send message from server to user connected on this server thread
@@ -263,8 +278,12 @@ public class ServerThread extends Thread {
                     break;
                 case "MESSAGE":
                     if (server.containsRoom(roomID)) {
-                        msgRoom(roomID, ":MESSAGE:" + message); // TODO: Use public key object being sent to message end-to-end 
-                        // TODO: msgUser(roomID, pubKey, ":MESSAGE:" + message);
+                        //msgRoom(roomID, ":MESSAGE:" + message); // TODO: Use public key object being sent to message end-to-end 
+                        // Retrieve the pubkey string sent in message and forward message to user
+                        //byte[] decodedPubKey = Base64.getDecoder().decode(pass);
+
+                        // Pass is the string encoded public key
+                        msgUser(roomID, pass, ":MESSAGE:" + message);
                     } else {
                         System.err.println("Invalid roomID to send message...");
                     }
@@ -338,7 +357,8 @@ public class ServerThread extends Thread {
     /**
      * Send message to user with specific public key
      */
-    public void msgUser(String roomID, PublicKey pubKey, String cipherText) {
-        server.getRoom(roomID).msgUser(pubKey, cipherText);
+    public void msgUser(String roomID, String pubKey, String cipherText) {
+        String senderPubKey = Base64.getEncoder().encodeToString(userPublicKey.getEncoded());
+        server.getRoom(roomID).msgUser(pubKey, cipherText, senderPubKey);
     }
 }

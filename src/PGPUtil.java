@@ -115,7 +115,7 @@ public class PGPUtil {
         else
             System.out.println("Oops there is a hacker");
             return decryptedMessage;
-    }
+        }
 
     /**
      * Returns the hash of a given string using the SHA-512 algorithm
