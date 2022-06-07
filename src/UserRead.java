@@ -63,7 +63,7 @@ public class UserRead extends Thread {
                 }
                 // Reads in Certificates of all Users in Current Room. Acts as a public key ring
                 else if (tempInput instanceof ArrayList<?>){
-                    ArrayList<X509Certificate> tempKeyStore = (ArrayList<X509Certificate>) tempInput;
+                    ArrayList<KeyRingObject> tempKeyStore = (ArrayList<KeyRingObject>) tempInput;
                     user.updateConnectedUsersKeys(tempKeyStore);
                 }
                 // Handles all message passing
@@ -94,6 +94,7 @@ public class UserRead extends Thread {
                     } else if (command.equals("INVALID")) {
                         user.warnFailure();
                     } else if (command.equals("MESSAGE")) {
+
                         user.setReceivedMessage(contents);
                         user.addNewMessage();
                     }

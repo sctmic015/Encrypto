@@ -72,12 +72,67 @@ public class Room {
         return userKeys;
     }
 
+    public ArrayList<KeyRingObject> getUserKeyRingObject(){
+        ArrayList<KeyRingObject> userKeyRingObjects = new ArrayList<>();
+        for (ServerThread sThread : sThreads){
+            userKeyRingObjects.add(sThread.getKeyRingObject());
+        }
+        return userKeyRingObjects;
+    }
+
     /**
      * Broadcast the given message to all users the room
      */
     public void broadcastMessage(String msg) {
+        System.out.println("Messaged Received: " + msg);
         for (ServerThread sThread : sThreads) {
+            System.out.println(sThread.getUsername());
             sThread.sendMsg(msg);
+
+        }
+    }
+    public void broadcastMessageArray(ArrayList<String> msg){
+        String msg2 = "[Mike] Hi";
+        for (ServerThread sThread : sThreads){
+            sThread.sendMsg(msg2);
+        }
+    }
+    public void broadcastMessage2(String msg) throws InterruptedException {
+        String[] incomingSplit = msg.split("]");
+        String header = incomingSplit[0] + " ";
+        String initialMessage = incomingSplit[1].trim();
+        String[] messageSplit = initialMessage.split(">");
+        for (int i = 1; i < messageSplit.length; i ++){
+            String[] userSplit = messageSplit[i].split("<");
+            String userName = userSplit[0];
+            String encryptedMessage = userSplit[1];
+            for (ServerThread sThread : sThreads){
+                System.out.println("In broadcast Message");
+                sThread.wait(20000);
+                if (sThread.getKeyRingObject().getUsername().equals(userName)){
+                    sThread.sendMsg(encryptedMessage);
+                }
+            }
+        }
+    }
+    public void broadcastMessage3(String msg) throws InterruptedException {
+        System.out.println("Messaged Received: " + msg);
+        for (ServerThread sThread : sThreads) {
+            System.out.println(sThread.getUsername());
+            sThread.wait(2000000000);
+
+            String[] incomingSplit = msg.split("]");
+            String header = incomingSplit[0] + " ";
+            String initialMessage = incomingSplit[1].trim();
+            String[] messageSplit = initialMessage.split(">");
+            for (int i = 1; i < messageSplit.length; i ++){
+                String[] userSplit = messageSplit[i].split("<");
+                String userName = userSplit[0];
+                String encryptedMessage = userSplit[1];
+                if (sThread.getKeyRingObject().getUsername().equals(userName)){
+                    System.out.println(header + encryptedMessage);
+                }
+            }
         }
     }
 
@@ -94,7 +149,14 @@ public class Room {
     /**
      * Broadcast the given keyRing to all users the room
      */
+    /**
     public void broadcastMessage(ArrayList<X509Certificate> keyRing){
+        for (ServerThread sThread : sThreads){
+            sThread.sendMsg(keyRing);
+        }
+    }
+    */
+    public void broadcastMessage(ArrayList<KeyRingObject> keyRing){
         for (ServerThread sThread : sThreads){
             sThread.sendMsg(keyRing);
         }

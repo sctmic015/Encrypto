@@ -45,7 +45,7 @@ public class User {
     private X509Certificate userCertificate;
     private X509Certificate serverCertificate;
     public KeyStore keyStore;
-    public ArrayList<X509Certificate> keyRing;
+    public ArrayList<KeyRingObject> keyRing;
 
     /**
      * Constructor to connect user to server
@@ -85,13 +85,20 @@ public class User {
         updateRoomListOfConnectedUsers();
     }
 
+    public ArrayList<String> getConnectedUsers(){
+        return connectedUsers;
+    }
     /**
      * Updates the list of connected users public key certificates
      */
-    public void updateConnectedUsersKeys(ArrayList<X509Certificate> keys) throws KeyStoreException {
+    public void updateConnectedUsersKeys(ArrayList<KeyRingObject> keys) throws KeyStoreException {
         this.keyRing = keys;
     }
 
+
+    public ArrayList<KeyRingObject> getKeyRing() {
+        return keyRing;
+    }
 
     /**
      * Set text message
