@@ -251,7 +251,6 @@ public class PGPUtil {
             PublicKey pub1 = keyPairReceiver.getPublic();
             System.out.println("Pub1: " + pub1);
 
-            
             String encodedPubKey = Base64.getEncoder().encodeToString(pub1.toString().getBytes("UTF-8"));
             System.out.println("Pub1 encoded: " + encodedPubKey);
 
