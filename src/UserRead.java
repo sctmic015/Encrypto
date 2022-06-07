@@ -96,6 +96,7 @@ public class UserRead extends Thread {
                     } else if (command.equals("INVALID")) {
                         user.warnFailure();
                     } else if (command.equals("MESSAGE")) {
+                        // Handles messages from user and decrypts encrypted messages and verifies sender
                         String[] fromUSer = getUserMessage(contents, user.getUsername());
                         String senderUserName = fromUSer[0].trim();
                         for (int i = 0; i < user.getKeyRing().size(); i ++){

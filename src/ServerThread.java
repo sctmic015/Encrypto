@@ -37,7 +37,7 @@ public class ServerThread extends Thread {
 
     /**
      * Constructs a server thread, setting up the input and output mechanisms.
-     * User is also attempted to be added and connection is closed if this fails.
+     * User is also attempted to be added and connection is closed if this fails. Certificates between server and user also exchnaged.
      */
     public ServerThread(Socket socket, Server server) throws CertificateException, OperatorCreationException {
         this.socket = socket;
@@ -99,6 +99,9 @@ public class ServerThread extends Thread {
         return userPublicKey;
     }
 
+    /**
+     * Get a KeyRingObject of user
+     */
     public KeyRingObject getKeyRingObject(){
         return this.keyRingObject;
     }
@@ -139,6 +142,10 @@ public class ServerThread extends Thread {
         }
     }
     */
+
+    /**
+     * Writes out an ArrayList of KeyRingObjects
+     */
     public void sendMsg(ArrayList<KeyRingObject> keyRing){
         try{
             output.writeObject(keyRing);
@@ -349,23 +356,6 @@ public class ServerThread extends Thread {
         server.getRoom(roomID).broadcastMessage(msg);
     }
 
-    public void msgRoom2(String roomID, String msg){
-        String[] incomingSplit = msg.split("]");
-        String header = incomingSplit[0] + " ";
-        String initialMessage = incomingSplit[1].trim();
-        String[] messageSplit = initialMessage.split(">");
-        ArrayList<String> out = new ArrayList<>();
-        out.add(header);
-        for (int i = 1; i < messageSplit.length; i ++){
-            String[] userSplit = messageSplit[i].split("<");
-            String userName = userSplit[0];
-            String encryptedMessage = userSplit[1];
-            out.add(userName);
-            out.add(encryptedMessage);
-        }
-        server.getRoom(roomID).broadcastMessageArray(out);
-    }
-
     /**
      * Broadcast a certificate to all users in a room
      */
@@ -385,6 +375,9 @@ public class ServerThread extends Thread {
     }
     */
 
+    /**
+     * BroadCasts a keyRing Object to all participants in room/
+     */
     public void msgRoom(String roomID, ArrayList<KeyRingObject> keyRing){
         server.getRoom(roomID).broadcastMessage(keyRing);
     }

@@ -1,3 +1,11 @@
+/**
+ * Contains all code to create and handle the chat window for a user
+ *
+ * @author Bradley Culligan, CLLBRA005
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
+ * @version June 2022
+ */
 import org.bouncycastle.jcajce.provider.asymmetric.X509;
 
 import java.io.IOException;
@@ -23,22 +31,30 @@ public class KeyRingObject implements Serializable {
         this.userCertificate = userCertificate;
     }
 
+    /**
+     * Gets a users Certificate
+     */
     public X509Certificate getUserCertificate() {
         return userCertificate;
     }
 
-    /* public String getSignedCert() {
-        return signedCert;
-    } */
-
+    /**
+     * Gets a given users username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Gets a given users public key
+     */
     public PublicKey getPublicKey(){
         return userCertificate.getPublicKey();
     }
 
+    /**
+     * Checks if a Username matches a string
+     */
     public boolean matchAlias(String alias){
         if (this.username.equals(alias)){
             return true;

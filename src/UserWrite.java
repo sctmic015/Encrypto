@@ -36,7 +36,7 @@ public class UserWrite extends Thread {
             output.writeObject(user.getUsername());
             output.flush();
             output.writeObject(publicKey);
-            //output.flush();
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
