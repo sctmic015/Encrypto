@@ -337,6 +337,7 @@ public class ServerThread extends Thread {
             Room room = server.getRoom(curRoomID);
             room.removeUser(this);
             msgRoom(curRoomID, ":UPDATE:" + room.getUsernames());
+            msgRoom(curRoomID, room.getUserKeyRingObject());
         }
     }
 
