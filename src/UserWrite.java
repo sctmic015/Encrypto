@@ -55,8 +55,10 @@ public class UserWrite extends Thread {
                 String text = user.getTextMessage();
                 // Only send text if there is something meaningful to send
                 if (text!= "" & text.startsWith(":MESSAGE")){
+                    String[] splitHelper = text.split("]");
+                    String sendHelper = splitHelper[0] + "] ";
                     System.out.println("Text from console: " + text);
-                    String joinedOutput = text + ">";
+                    String joinedOutput = sendHelper + ">";
                     // TODO: Use the keyring object that I need to create
                     for (int i = 0; i < user.getKeyRing().size(); i ++){
                         System.out.println("test");

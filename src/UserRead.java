@@ -81,6 +81,7 @@ public class UserRead extends Thread {
                     String contents = ""; // either msg or username set
                     command = controlCommands[1]; // Item zero is throwaway
                     contents = controlCommands[2];
+                    System.out.println("Contents are: " + contents);
 
                     if (command.equals("SHUTDOWN")) {
                         // If shutdown message has been called, then break
@@ -101,8 +102,9 @@ public class UserRead extends Thread {
                             if (user.getKeyRing().get(i).matchAlias(senderUserName)) {
                                 PublicKey senderPublicKey = user.getKeyRing().get(i).getPublicKey();
                                 String userMessage = fromUSer[1];
-                                System.out.println(userMessage);
+                                System.out.println("UserMessage: " + userMessage);
                                 userMessage = PGPUtil.receiver(userMessage, senderPublicKey, user.getKeyPair().getPublic(), user.getKeyPair().getPrivate());
+                                System.out.println("Decrypted UserMessage: " + userMessage);
                                 user.setReceivedMessage(userMessage);
                                 user.addNewMessage();
                             }
