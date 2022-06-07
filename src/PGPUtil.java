@@ -34,12 +34,13 @@ public class PGPUtil {
      */
     public static String sender(String message, KeyPair senderKeyPair, PublicKey receiverPublicKey) throws Exception {
         // 1: Create a hash of the message
+        System.out.println("Print statements for process of encrypting message");
         String hashMessage = hashSHA(message);
-        // System.out.println("Sender Hash: " + hashMessage);
+        System.out.println("Sender Hash: " + hashMessage);
         // 2: Digitally sign hash using private key
         String encryptedWithPriv = asymmetricEncrypt(senderKeyPair.getPublic(), senderKeyPair.getPrivate(), hashMessage,
                 0);
-        // System.out.println(encryptedWithPriv);
+        System.out.println("Hashed Message encrypted with private key: " + encryptedWithPriv);
         // 3: Append original message and encrypted hash
         String concatMessEncryptHash[] = { message, encryptedWithPriv };
         // 4: Compress 3
@@ -47,8 +48,10 @@ public class PGPUtil {
         for (int i = 0; i < concatMessEncryptHash.length; i++) {
             zipped[i] = compress(concatMessEncryptHash[i]);
         }
+        System.out.println("Everything now zipped");
         // 5: Encrypt zipped with AES
         SecretKey sharedKey = KeyGenerator.getInstance("AES").generateKey();
+        System.out.println("Generated Secret/Shared key:" + sharedKey.toString());
         String zippedAES[] = new String[zipped.length + 1];
         for (int i = 0; i < zipped.length; i++) {
             zippedAES[i] = encryptAES(zipped[i], sharedKey);
@@ -57,7 +60,7 @@ public class PGPUtil {
         // 6: Encrypt shared key with public key using RSA
         String encodedSharedKey = Base64.getEncoder().encodeToString(sharedKey.getEncoded());
         String encryptSharedWithPublic = asymmetricEncrypt(receiverPublicKey, null, encodedSharedKey, 1);
-
+        System.out.println("Encrypted and encoded shared key: " + encryptSharedWithPublic);
         // 7: Append 5 and 6 and send as final message
         zippedAES[2] = encryptSharedWithPublic;
         String returnMessage[] = zippedAES;
@@ -70,8 +73,9 @@ public class PGPUtil {
                 returnMessageOut += returnMessage[i];
             //System.out.println(i + " : " + returnMessage[i]);
         }
-
+        System.out.println("Finally Concatenated message to receiver: " + returnMessageOut);
         System.out.println("Done Sender");
+        System.out.println("");
         return returnMessageOut;
     }
 
@@ -88,10 +92,13 @@ public class PGPUtil {
     public static String receiver(String returnMessageOut, PublicKey senderPubKey, PublicKey receiverPublicKey,
             PrivateKey receiverPrivateKey) throws Exception {
         // 1: Decrypt secret key of AES using private key
+        System.out.println("");
         String[] returnMessage = returnMessageOut.split(";", 3);
         String receivedEncodedSecretKey = decrypt(receiverPublicKey, receiverPrivateKey, returnMessage[2], 1);
         byte[] receivedDecodedSecretKey = Base64.getDecoder().decode(receivedEncodedSecretKey);
         SecretKey actualKey = new SecretKeySpec(receivedDecodedSecretKey, 0, receivedDecodedSecretKey.length, "AES");
+        System.out.println("Print statements for process of unencrypting message");
+        System.out.println("Unencrypted secret/session key" + actualKey.toString());
 
         // 2: Decrypt Rest of message in returnMessage with actualKey
         String receiveDecryptedMessage[] = new String[returnMessage.length - 1];
@@ -104,6 +111,7 @@ public class PGPUtil {
             unzipstring[i] = decompress(returnMessage[i]);
         }
         String decryptedMessage = unzipstring[0];
+        System.out.print("Unencrypted and unzipped message: " + decryptedMessage);
         // System.out.println("Decrypted Message: " + decryptedMessage);
 
         // 4: Verify Digital signature
@@ -114,6 +122,8 @@ public class PGPUtil {
         if (receivedhash.equals(calculateHash)) {
             System.out.println(
                     "Received Hash and Calculated Hash are equal therefore authentication and confidentiality achieved");
+            System.out.println("Done Receiver");
+            System.out.println();
             return decryptedMessage;
         } else
             System.out.println("Oops there is a hacker");
