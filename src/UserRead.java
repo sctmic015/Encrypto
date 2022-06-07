@@ -81,7 +81,6 @@ public class UserRead extends Thread {
                     String contents = ""; // either msg or username set
                     command = controlCommands[1]; // Item zero is throwaway
                     contents = controlCommands[2];
-                    System.out.println("Contents are: " + contents);
 
                     if (command.equals("SHUTDOWN")) {
                         // If shutdown message has been called, then break
