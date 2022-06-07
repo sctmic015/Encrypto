@@ -7,8 +7,6 @@ import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.RSAKeyGenParameterSpec;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.Base64;
@@ -227,7 +225,7 @@ public class PGPUtil {
     }
 
     /**
-     * Main method to test entire PGP protocol.
+     * Main method to test entire PGP protocol. Not used by application.
      */
     public static void main (String[] args){
         try{

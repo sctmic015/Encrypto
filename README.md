@@ -7,7 +7,7 @@
 In a terminal instance, first run `make server` to start the Encrypto server on port 4444.
 In a new terminal instance, run `make user` to create a user and launch its GUI. This can be repeated any number of times to create more users and their GUIs.
 
-The GUI is used to interact with the application. The login window is the first window that opens when a user is started. At the bottom, there is a text field for a username to be entered - this must be between 1 and 17 characters in length. Click the login button to connect your user to the server.
+The GUI is used to interact with the application. The login window is the first window that opens when a user is started. At the bottom, there is a text field for a username to be entered - this must be between 1 and 17 characters in length. Click the login button to connect your user to the server. Note that unique usernames should be used for each user.
 
 The following window displayed is the chat window. In the top left, your chosen username will be displayed. Next to that, it will say "Welcome!" - this welcome text will display the room ID when you join a room. In the middle of the screen, on the right, the Encrypto logo is displayed and a helpful hint text on how to proceed. Use the buttons on the bottom left to start a room, join a room, or logout from the application.
 
