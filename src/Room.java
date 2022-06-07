@@ -114,8 +114,9 @@ public class Room {
                 e.printStackTrace();
             }
             try {
+                //System.out.println(pubKey);
                 System.out.println(new String(Base64.getDecoder().decode(pubKey), "UTF-8")); // incorrect
-                System.out.println(new String(Base64.getDecoder().decode(roomPubKeyEncoded), "UTF-8")); // correct
+                //System.out.println(new String(Base64.getDecoder().decode(roomPubKeyEncoded), "UTF-8")); // correct
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

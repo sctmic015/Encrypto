@@ -203,6 +203,8 @@ public class User {
 
             String cipherText = PGPUtil.sender(messageContents, keyPair, pubKey); // Cipher the message contents by PGP
             String encodedPubKey = Base64.getEncoder().encodeToString(pubKey.toString().getBytes("UTF-8"));
+            //System.out.println(encodedPubKey);
+            //System.out.println(new String(Base64.getDecoder().decode(encodedPubKey), "UTF-8")); // incorrect
 
             setTextMessage(messageHeader + encodedPubKey + ":" + cipherText);
         }
@@ -220,7 +222,7 @@ public class User {
         int sep = cipherText.lastIndexOf(":");
         msg = cipherText.substring(0, sep);
         senderPublicKey = cipherText.substring(sep+1, cipherText.length());
-        
+
         // Go through the list of keys on the keyring and choose the matching certificate to be used as the sender's certificate
         PublicKey senderpubKey = userCertificate.getPublicKey(); // Initialised to itself
         for (X509Certificate cert : keyRing) {

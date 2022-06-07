@@ -281,6 +281,12 @@ public class ServerThread extends Thread {
                         //byte[] decodedPubKey = Base64.getDecoder().decode(pass);
 
                         // Pass is the string encoded public key
+                        /* String encodedPass = "";
+                        try {
+                            encodedPass = Base64.getEncoder().encodeToString(pass.toString().getBytes("UTF-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        } */
                         msgUser(roomID, pass, ":MESSAGE:" + message);
                     } else {
                         System.err.println("Invalid roomID to send message...");
