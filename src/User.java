@@ -73,7 +73,7 @@ public class User {
      */
     public void updateConnectedUsers(String connectedList) {
         // Remove the opening and closing brace
-        connectedList = connectedList.substring(1, connectedList.length() - 2);
+        connectedList = connectedList.substring(1, connectedList.length() - 1);
 
         // Split the list and store in a list data structure
         connectedUsers = new ArrayList<>(Arrays.asList(connectedList.split(", ")));
