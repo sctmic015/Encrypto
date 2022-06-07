@@ -11,6 +11,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.Base64;
 
 /**
  * PGPUtil for PGP implementation
@@ -148,6 +149,25 @@ public class PGPUtil {
     }
 
     /**
+     * For a given key pair and encrypted message, decrypt and return the message using either the public or private key
+     * depending on the mode chosen. Decryption uses the RSA algorithm.
+     */
+    public static String decrypt(PublicKey publicKey,PrivateKey privateKey, String st, int ch) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        byte[] encrypted = Base64.getDecoder().decode(st);
+        if (ch == 0) {
+            cipher.init(Cipher.DECRYPT_MODE, publicKey);
+            byte[] utf8 = cipher.doFinal(encrypted);
+            return new String(utf8, "UTF8");
+        }
+        else {
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] utf8 = cipher.doFinal(encrypted);
+            return new String(utf8, "UTF8");
+        }
+    }
+
+    /**
      * Compresses a given message using gzip compression
      */
     public static String compress(String data) throws IOException {
@@ -172,25 +192,6 @@ public class PGPUtil {
         byte[] enc = ecipher.doFinal(utf8);
         // Encode bytes to base64 to get a string
         return Base64.getEncoder().encodeToString(enc);
-    }
-
-    /**
-     * For a given key pair and encrypted message, decrypt and return the message using either the public or private key
-     * depending on the mode chosen. Decryption uses the RSA algorithm.
-     */
-    public static String decrypt(PublicKey publicKey,PrivateKey privateKey, String st, int ch) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
-        byte[] encrypted = Base64.getDecoder().decode(st);
-        if (ch == 0) {
-            cipher.init(Cipher.DECRYPT_MODE, publicKey);
-            byte[] utf8 = cipher.doFinal(encrypted);
-            return new String(utf8, "UTF8");
-        }
-        else {
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] utf8 = cipher.doFinal(encrypted);
-            return new String(utf8, "UTF8");
-        }
     }
 
     /**
@@ -228,35 +229,45 @@ public class PGPUtil {
     /**
      * Main method to test entire PGP protocol.
      */
-    public static void main (String[] args) throws Exception {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+    public static void main (String[] args){
+        try{
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
-        KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
+            KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
 
-        kpGen.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
+            kpGen.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
 
-        KeyPair keyPairSender = kpGen.generateKeyPair();
+            KeyPair keyPairSender = kpGen.generateKeyPair();
 
-        KeyPairGenerator kpGen2 = KeyPairGenerator.getInstance("RSA", "BC");
+            KeyPairGenerator kpGen2 = KeyPairGenerator.getInstance("RSA", "BC");
 
-        kpGen2.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
+            kpGen2.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
 
-        KeyPair keyPairReceiver = kpGen.generateKeyPair();
+            KeyPair keyPairReceiver = kpGen.generateKeyPair();
 
-        String input = "We are building the encrypto app";
-        System.out.println("Sent input: " + input);
+            String input = "We are building the encrypto app";
+            System.out.println("Sent input: " + input);
 
-        PublicKey pub1 = keyPairReceiver.getPublic();
-        System.out.println("Pub1: " + pub1);
-        String encodedPubKey = Base64.getEncoder().encodeToString(pub1.getEncoded());
-        System.out.println("Pub1 encoded: " + encodedPubKey);
-        byte[] receivedDecodedSecretKey = Base64.getDecoder().decode(encodedPubKey);
-        String decodedPubKey = receivedDecodedSecretKey.toString();
-        System.out.println("Decoded key: " + decodedPubKey);
-        SecretKey actualKey = new SecretKeySpec(receivedDecodedSecretKey, 0, receivedDecodedSecretKey.length, "AES");
+            PublicKey pub1 = keyPairReceiver.getPublic();
+            System.out.println("Pub1: " + pub1);
 
-        //String fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
-        //System.out.println(fromSender);
-        //receiver(fromSender, keyPairSender.getPublic(), keyPairReceiver.getPublic(), keyPairReceiver.getPrivate());
+            
+            String encodedPubKey = Base64.getEncoder().encodeToString(pub1.toString().getBytes("UTF-8"));
+            System.out.println("Pub1 encoded: " + encodedPubKey);
+
+            byte[] receivedDecodedSecretKey = Base64.getDecoder().decode(encodedPubKey);
+            String decodedPubKey = new String(receivedDecodedSecretKey, "UTF-8");
+            System.out.println("Decoded key: " + decodedPubKey);
+
+            SecretKey actualKey = new SecretKeySpec(receivedDecodedSecretKey, 0, receivedDecodedSecretKey.length, "AES");
+
+            //String fromSender = sender(input, keyPairSender, keyPairReceiver.getPublic());
+            //System.out.println(fromSender);
+            //receiver(fromSender, keyPairSender.getPublic(), keyPairReceiver.getPublic(), keyPairReceiver.getPrivate());
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        
     }
 }

@@ -69,10 +69,8 @@ public class ServerThread extends Thread {
             }
             
             // --- DEBUG STATEMENT ---
-            server.inform("The user's certificate has been created as follows:");
+            server.inform("The user's certificate (which contains their public key) has been created as follows:");
             server.inform(userCertificate.toString());
-            server.inform("The user's public key is as follows:");
-            server.inform(userPublicKey.toString());
             
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -105,7 +103,7 @@ public class ServerThread extends Thread {
      *
     public void sendMsg(String msg, String senderPubKey) {
         try {
-            output.writeObject(msg + ":" + senderPubKey + ":" + "\n");
+            output.writeObject(msg + ":" + senderPubKey + ":");
             //output.writeObject("\n");
             output.flush();
         } catch (IOException e) {
@@ -118,7 +116,7 @@ public class ServerThread extends Thread {
      */
     public void sendMsg(String msg) {
         try {
-            output.writeObject(msg + "\n");
+            output.writeObject(msg);
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -196,7 +194,7 @@ public class ServerThread extends Thread {
                         leaveCurRoom();
                         // Send message to user to shut down connection
                         try {
-                            output.writeObject(":SHUTDOWN:" + "\n");
+                            output.writeObject(":SHUTDOWN:");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -211,7 +209,7 @@ public class ServerThread extends Thread {
                 case "START":
                     if (!server.containsRoom(roomID)) {
                         try {
-                            output.writeObject(":VALID:" + "\n");
+                            output.writeObject(":VALID:");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -231,7 +229,7 @@ public class ServerThread extends Thread {
                         // Error setting up room, tell user there was an invalid operation and inform
                         // the server of the mishap
                         try {
-                            output.writeObject(":INVALID:" + "\n");
+                            output.writeObject(":INVALID:");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -245,7 +243,7 @@ public class ServerThread extends Thread {
                 case "JOIN":
                     if (server.containsRoom(roomID) && server.validRoomPassCombo(roomID, pass)) {
                         try {
-                            output.writeObject(":VALID:" + "\n");
+                            output.writeObject(":VALID:");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -265,7 +263,7 @@ public class ServerThread extends Thread {
                         // Error setting up room, tell user there was an invalid operation and inform
                         // the server of the mishap
                         try {
-                            output.writeObject(":INVALID:" + "\n");
+                            output.writeObject(":INVALID:");
                             output.flush();
                         } catch (IOException e) {
                             e.printStackTrace();

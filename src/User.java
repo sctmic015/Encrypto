@@ -191,6 +191,7 @@ public class User {
      */
     public void inform(String text) {
         System.out.println("> " + text);
+        System.out.println("");
     }
 
     /**
