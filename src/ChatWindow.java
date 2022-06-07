@@ -209,6 +209,7 @@ public class ChatWindow extends JFrame {
                                 e1.printStackTrace();
                             }
 
+                            // Ask user to send message to server
                             user.setTextMessage(":START:" + attemptedRoomID + ":" + hiddenPassword + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
@@ -255,6 +256,7 @@ public class ChatWindow extends JFrame {
                                 e1.printStackTrace();
                             }
 
+                            // Ask user to send message to server
                             user.setTextMessage(":JOIN:" + attemptedRoomID + ":" + hiddenPassword + ":");
                         } else {
                             JOptionPane.showMessageDialog(null,
@@ -340,7 +342,7 @@ public class ChatWindow extends JFrame {
     /**
      * Show chatting area instead of splash
      */
-    public void setupChat() {
+    public void setupChat(){
         curRoomID = attemptedRoomID; // Room join/start success so current room ID is updated
         lblChattingToUsername.setText("Room Name: " + curRoomID);
         if (splashOpen) {
@@ -404,18 +406,9 @@ public class ChatWindow extends JFrame {
                         String messageContents = txtMessage.getText();
                         txtMessage.setText(hint);
 
-                        // TODO: Use this if things break
                         // Set the user chat contents for sending to server
-                        user.setTextMessage(
-                                ":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] " + messageContents); 
-                        // Tell user to send the message to all room participants
-                       /*  String messageHeader = ":MESSAGE:" + curRoomID + ":";
-                        messageContents = "[" + user.getUsername() + "] " + messageContents;
-                        try {
-                            user.sendMessage(messageHeader, messageContents);
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        } */
+                        user.setTextMessage(":MESSAGE:" + curRoomID + ":" + "[" + user.getUsername() + "] "
+                        + messageContents); 
                     }
 
                 }

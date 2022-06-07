@@ -1,17 +1,12 @@
 
 /**
- * Represents a user and handles logic for UI and server access control
+ * Represents a user and handles logic for GUI and server access control
  * 
  * @author Bradley Culligan, CLLBRA005
  * @author David Court, CRTDAV015
  * @author Michael Scott, SCTMIC015
  * @version June 2022
  */
-
-//import org.bouncycastle.crypto.ec.ECNewPublicKeyTransform;
-//import org.bouncycastle.jcajce.provider.asymmetric.X509;
-//import org.bouncycastle.openpgp.PGPKeyRing;
-//import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 
 import java.awt.EventQueue;
 import java.net.*;
@@ -96,10 +91,6 @@ public class User {
     public void updateConnectedUsersKeys(ArrayList<KeyRingObject> keys) throws KeyStoreException {
         keyRing.clear();
         for (KeyRingObject key : keys) {
-            /* if (authenticate(key)) {
-                inform("Authenticated and added user: " + key.getUsername());
-                keyRing.add(key);
-            } */
             X509Certificate certToAuthenticate = key.getUserCertificate();
             try {
                 certToAuthenticate.verify(serverCertificate.getPublicKey());
@@ -113,34 +104,8 @@ public class User {
     }
 
     /**
-     * Use the CA's public key to authenticate a connected user's certificate
+     * Get the users's key ring
      */
-    /* public boolean authenticate(KeyRingObject key) {
-        X509Certificate certToAuthenticate = key.getUserCertificate();
-        String signedCert = key.getSignedCert();
-        String unsignedCertToCheck = "";
-
-        // Use CA's public key to decrypt the signed certificate
-        try {
-            unsignedCertToCheck = PGPUtil.asymmetricEncrypt(serverCertificate.getPublicKey(), null, signedCert, 1);
-        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | UnsupportedEncodingException
-                | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-        }
-        try {
-            certToAuthenticate.verify(serverCertificate.getPublicKey());
-        } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
-                | SignatureException e) {
-            e.printStackTrace();
-        } */
-/* 
-        inform(unsignedCertToCheck);
-        inform(certToAuthenticate.toString()); */
-
-        // Compare certificate results
-       /*  return unsignedCertToCheck.equals(certToAuthenticate.toString());
-    } */
-
     public ArrayList<KeyRingObject> getKeyRing() {
         return keyRing;
     }
@@ -244,48 +209,6 @@ public class User {
     }
 
     /**
-     * For each user connected on the keyRing, encrypt the message and send tell the server to send the encrypted message
-     * @throws Exception
-     */
-    /* public synchronized void sendMessage(String messageHeader, String messageContents) throws Exception {
-        for (X509Certificate receiverCertificate : keyRing) {
-            PublicKey pubKey = receiverCertificate.getPublicKey();
-
-            String cipherText = PGPUtil.sender(messageContents, keyPair, pubKey); // Cipher the message contents by PGP
-            String encodedPubKey = Base64.getEncoder().encodeToString(pubKey.toString().getBytes("UTF-8"));
-            //System.out.println(encodedPubKey);
-            //System.out.println(new String(Base64.getDecoder().decode(encodedPubKey), "UTF-8")); // incorrect
-
-            setTextMessage(messageHeader + encodedPubKey + ":" + cipherText);
-        }
-    } */
-
-    /**
-     * Returns the plaintext from a PGP received ciphertext
-     * @throws Exception
-     */
-    /* public String getPlainText(String cipherText) throws Exception {
-        // Separate content strings receievd for ciphertext msg and sender pub key
-        String msg = "";
-        String senderPublicKey = "";
-        cipherText = cipherText.substring(0, cipherText.lastIndexOf(":"));
-        int sep = cipherText.lastIndexOf(":");
-        msg = cipherText.substring(0, sep);
-        senderPublicKey = cipherText.substring(sep+1, cipherText.length());
-
-        // Go through the list of keys on the keyring and choose the matching certificate to be used as the sender's certificate
-        PublicKey senderpubKey = userCertificate.getPublicKey(); // Initialised to itself
-        for (X509Certificate cert : keyRing) {
-            String encodedPubKey = Base64.getEncoder().encodeToString(cert.getPublicKey().toString().getBytes("UTF-8"));
-            if (senderPublicKey.equals(encodedPubKey)) {
-                senderpubKey = cert.getPublicKey();
-            }
-        }
-
-        return PGPUtil.receiver(cipherText, senderpubKey, keyPair.getPublic(), keyPair.getPrivate());
-    } */
-
-    /**
      * Hashes and encrypts the password then returns this version in string form
      */
     public String createHiddenPassword(String text) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
@@ -302,11 +225,8 @@ public class User {
      */
     private KeyPair userKey() throws GeneralSecurityException {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-
         KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
-
         kpGen.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
-
         return kpGen.generateKeyPair();
     }
 

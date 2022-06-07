@@ -62,7 +62,7 @@ public class UserRead extends Thread {
                     user.setServerCertificate(serverCertificate);
                     count ++;
                 }
-                // Reads in Certificates of all Users in Current Room. Acts as a public key ring
+                // Reads in key ring of all users in the current room
                 else if (tempInput instanceof ArrayList<?>){
                     ArrayList<KeyRingObject> tempKeyStore = (ArrayList<KeyRingObject>) tempInput;
                     user.updateConnectedUsersKeys(tempKeyStore);
@@ -107,13 +107,11 @@ public class UserRead extends Thread {
                                 System.out.println("Decrypted UserMessage: " + userMessage);
                                 String[] decryptedSplit = userMessage.split(":", 4);
                                 String finalSend = decryptedSplit[decryptedSplit.length - 1];
-                                //System.out.println(decryptedSplit[decryptedSplit.length - 1]);
                                 user.setReceivedMessage(finalSend);
                                 user.addNewMessage();
                             }
                         }
                     }
-
                 }
 
             } catch (IOException | ClassNotFoundException | KeyStoreException e) {

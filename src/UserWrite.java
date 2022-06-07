@@ -36,7 +36,7 @@ public class UserWrite extends Thread {
             output.writeObject(user.getUsername());
             output.flush();
             output.writeObject(publicKey);
-            //output.flush();
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,30 +54,26 @@ public class UserWrite extends Thread {
                 if (text!= "" & text.startsWith(":MESSAGE")){
                     String[] splitHelper = text.split("]");
                     String sendHelper = splitHelper[0] + "] ";
-                    System.out.println("Text from console: " + text);
                     String joinedOutput = sendHelper + ">";
-                    // TODO: Use the keyring object that I need to create
+
+                    // Build a message containing the an encryption of the chat message being sent for each user in the room
+                    // Then send said message to the server
                     for (int i = 0; i < user.getKeyRing().size(); i ++){
-                        System.out.println("test");
-                        //Thread.sleep(200);
                         String tempDecrypted = "";
                         if (i < user.getConnectedUsers().size() - 1) {
                             tempDecrypted = user.getKeyRing().get(i).getUsername() + "<" + PGPUtil.sender(text, user.getKeyPair(), user.getKeyRing().get(i).getPublicKey()) + ">";
                         }
                         else
                             tempDecrypted = user.getKeyRing().get(i).getUsername() + "<" + PGPUtil.sender(text, user.getKeyPair(), user.getKeyRing().get(i).getPublicKey());
-                        //Thread.sleep(200);
-                        System.out.println("Shit: " + i);
+
                         joinedOutput += tempDecrypted;
                     }
-                    System.out.println("Exited Loop");
                     output.writeObject(joinedOutput);
                     output.flush();
                     user.setTextMessage("");
                 }
                 else if (text != "") {
                     output.writeObject(text);
-                    //output.writeObject("\n");
                     output.flush();
                     // Message has been flushed, reset the text message
                     user.setTextMessage("");

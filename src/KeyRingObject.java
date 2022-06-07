@@ -1,5 +1,14 @@
-import org.bouncycastle.jcajce.provider.asymmetric.X509;
 
+/**
+ * Contains all code to create and handle the login window for a user
+ * 
+ * @author Bradley Culligan, CLLBRA005
+ * @author David Court, CRTDAV015
+ * @author Michael Scott, SCTMIC015
+ * @version June 2022
+ */
+
+import org.bouncycastle.jcajce.provider.asymmetric.X509;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
@@ -9,6 +18,8 @@ import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+
+
 
 public class KeyRingObject implements Serializable {
     private String username;
