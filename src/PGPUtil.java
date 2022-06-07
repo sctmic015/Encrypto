@@ -248,10 +248,10 @@ public class PGPUtil {
 
         PublicKey pub1 = keyPairReceiver.getPublic();
         System.out.println("Pub1: " + pub1);
-        String encodedPubKey = Base64.getEncoder().encodeToString(pub1.getEncoded());
+        String encodedPubKey = Base64.getEncoder().encodeToString(pub1.toString().getBytes("UTF-8"));
         System.out.println("Pub1 encoded: " + encodedPubKey);
         byte[] receivedDecodedSecretKey = Base64.getDecoder().decode(encodedPubKey);
-        String decodedPubKey = receivedDecodedSecretKey.toString();
+        String decodedPubKey = new String(receivedDecodedSecretKey, "UTF-8");
         System.out.println("Decoded key: " + decodedPubKey);
         SecretKey actualKey = new SecretKeySpec(receivedDecodedSecretKey, 0, receivedDecodedSecretKey.length, "AES");
 

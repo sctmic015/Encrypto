@@ -8,6 +8,7 @@
  * @version June 2022
  */
 
+import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -106,7 +107,18 @@ public class Room {
      */
     public void msgUser(String pubKey, String cipherText, String senderPubKey) {
         for (ServerThread sThread : sThreads) {
-            String roomPubKeyEncoded = Base64.getEncoder().encodeToString(sThread.getPublicKey().getEncoded());
+            String roomPubKeyEncoded="";
+            try {
+                roomPubKeyEncoded = Base64.getEncoder().encodeToString(sThread.getPublicKey().toString().getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            try {
+                System.out.println(new String(Base64.getDecoder().decode(pubKey), "UTF-8")); // incorrect
+                System.out.println(new String(Base64.getDecoder().decode(roomPubKeyEncoded), "UTF-8")); // correct
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             if (roomPubKeyEncoded.equals(pubKey)) {
                 sThread.sendMsg(cipherText + ":" + senderPubKey + ":");
             }

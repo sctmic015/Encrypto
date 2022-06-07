@@ -76,7 +76,6 @@ public class User {
     /**
      * Updates the list of connected users
      */
-    // TODO: and their associated public keys
     public void updateConnectedUsers(String connectedList) {
         // Remove the opening and closing brace
         connectedList = connectedList.substring(1, connectedList.length() - 2);
@@ -202,7 +201,7 @@ public class User {
             PublicKey pubKey = receiverCertificate.getPublicKey();
 
             String cipherText = PGPUtil.sender(messageContents, keyPair, pubKey); // Cipher the message contents by PGP
-            String encodedPubKey = Base64.getEncoder().encodeToString(pubKey.getEncoded());
+            String encodedPubKey = Base64.getEncoder().encodeToString(pubKey.toString().getBytes("UTF-8"));
 
             setTextMessage(messageHeader + encodedPubKey + ":" + cipherText);
         }
@@ -220,11 +219,11 @@ public class User {
         int sep = cipherText.lastIndexOf(":");
         msg = cipherText.substring(0, sep);
         senderPublicKey = cipherText.substring(sep+1, cipherText.length());
-
+        
         // Go through the list of keys on the keyring and choose the matching certificate to be used as the sender's certificate
         PublicKey senderpubKey = userCertificate.getPublicKey(); // Initialised to itself
         for (X509Certificate cert : keyRing) {
-            String encodedPubKey = Base64.getEncoder().encodeToString(cert.getPublicKey().getEncoded());
+            String encodedPubKey = Base64.getEncoder().encodeToString(cert.getPublicKey().toString().getBytes("UTF-8"));
             if (senderPublicKey.equals(encodedPubKey)) {
                 senderpubKey = cert.getPublicKey();
             }

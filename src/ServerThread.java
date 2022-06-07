@@ -358,7 +358,12 @@ public class ServerThread extends Thread {
      * Send message to user with specific public key
      */
     public void msgUser(String roomID, String pubKey, String cipherText) {
-        String senderPubKey = Base64.getEncoder().encodeToString(userPublicKey.getEncoded());
+        String senderPubKey = "";
+        try {
+            senderPubKey = Base64.getEncoder().encodeToString(userPublicKey.toString().getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         server.getRoom(roomID).msgUser(pubKey, cipherText, senderPubKey);
     }
 }
