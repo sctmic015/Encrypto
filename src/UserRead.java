@@ -105,7 +105,10 @@ public class UserRead extends Thread {
                                 System.out.println("UserMessage: " + userMessage);
                                 userMessage = PGPUtil.receiver(userMessage, senderPublicKey, user.getKeyPair().getPublic(), user.getKeyPair().getPrivate());
                                 System.out.println("Decrypted UserMessage: " + userMessage);
-                                user.setReceivedMessage(userMessage);
+                                String[] decryptedSplit = userMessage.split(":", 4);
+                                String finalSend = decryptedSplit[decryptedSplit.length - 1];
+                                //System.out.println(decryptedSplit[decryptedSplit.length - 1]);
+                                user.setReceivedMessage(finalSend);
                                 user.addNewMessage();
                             }
                         }
