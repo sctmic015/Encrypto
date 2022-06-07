@@ -14,15 +14,13 @@ import org.bouncycastle.operator.OperatorCreationException;
 
 import java.net.*;
 import java.io.*;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Arrays;
 
 public class ServerThread extends Thread {
     private Socket socket;
@@ -35,6 +33,7 @@ public class ServerThread extends Thread {
     private String curRoomID;
     private PublicKey userPublicKey;
     private X509Certificate userCertificate;
+    private KeyRingObject keyRingObject;
 
     /**
      * Constructs a server thread, setting up the input and output mechanisms.
@@ -56,6 +55,8 @@ public class ServerThread extends Thread {
             X509Certificate userCertificate = server.createEndEntity(username, "SHA256WithRSA", userPublicKey);
             this.userCertificate = userCertificate;
             server.addUserCertificate(userCertificate);
+            //String signedCert = server.getSignedCert(userCertificate);
+            this.keyRingObject = new KeyRingObject(username, this.userCertificate);
 
             // Send user and server certificates back to user
             output.writeObject(userCertificate);
@@ -72,7 +73,7 @@ public class ServerThread extends Thread {
             server.inform("The user's certificate (which contains their public key) has been created as follows:");
             server.inform(userCertificate.toString());
             
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | GeneralSecurityException e) {
             e.printStackTrace();
         }
     }
@@ -98,19 +99,9 @@ public class ServerThread extends Thread {
         return userPublicKey;
     }
 
-/*     /**
-     * Send message from server to user connected on this server thread specifying public key
-     *
-    public void sendMsg(String msg, String senderPubKey) {
-        try {
-            output.writeObject(msg + ":" + senderPubKey + ":");
-            //output.writeObject("\n");
-            output.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    } */
-
+    public KeyRingObject getKeyRingObject(){
+        return this.keyRingObject;
+    }
     /**
      * Send message from server to user connected on this server thread
      */
@@ -138,7 +129,17 @@ public class ServerThread extends Thread {
     /**
      * Send ArrayList of Certificates of users connected to room from server to user connected on this server thread
      */
+    /**
     public void sendMsg(ArrayList<X509Certificate> keyRing){
+        try{
+            output.writeObject(keyRing);
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    */
+    public void sendMsg(ArrayList<KeyRingObject> keyRing){
         try{
             output.writeObject(keyRing);
             output.flush();
@@ -191,7 +192,11 @@ public class ServerThread extends Thread {
                 case "LOGOUT":
                     // Logout command received, remove user
                     if (server.removeUser(username)) {
-                        leaveCurRoom();
+                        try {
+                            leaveCurRoom();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         // Send message to user to shut down connection
                         try {
                             output.writeObject(":SHUTDOWN:");
@@ -223,6 +228,8 @@ public class ServerThread extends Thread {
                         } catch (NoSuchAlgorithmException e) {
                             e.printStackTrace();
                         } catch (KeyStoreException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     } else {
@@ -258,6 +265,8 @@ public class ServerThread extends Thread {
                             e.printStackTrace();
                         } catch (KeyStoreException e) {
                             e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     } else {
                         // Error setting up room, tell user there was an invalid operation and inform
@@ -276,18 +285,13 @@ public class ServerThread extends Thread {
                     break;
                 case "MESSAGE":
                     if (server.containsRoom(roomID)) {
-                        //msgRoom(roomID, ":MESSAGE:" + message); // TODO: Use public key object being sent to message end-to-end 
-                        // Retrieve the pubkey string sent in message and forward message to user
-                        //byte[] decodedPubKey = Base64.getDecoder().decode(pass);
-
-                        // Pass is the string encoded public key
-                        /* String encodedPass = "";
+                        //System.out.println("Message Received: " + message);
                         try {
-                            encodedPass = Base64.getEncoder().encodeToString(pass.toString().getBytes("UTF-8"));
-                        } catch (UnsupportedEncodingException e) {
+                            msgRoom(roomID, ":MESSAGE:" + message); // TODO: Use public key object being sent to message end-to-end
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
-                        } */
-                        msgUser(roomID, pass, ":MESSAGE:" + message);
+                        }
+                        // TODO: msgUser(roomID, pubKey, ":MESSAGE:" + message);
                     } else {
                         System.err.println("Invalid roomID to send message...");
                     }
@@ -301,7 +305,7 @@ public class ServerThread extends Thread {
     /**
      * Add a new room to the server and add the creator
      */
-    public void startRoom(String roomID, String password) throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException {
+    public void startRoom(String roomID, String password) throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException, InterruptedException {
         server.addRoom(new Room(roomID, password));
         joinRoom(roomID);
         curRoomID = roomID;
@@ -310,7 +314,7 @@ public class ServerThread extends Thread {
     /**
      * Add the user to the given room and inform all users in that room of the event
      */
-    public void joinRoom(String roomID) throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException {
+    public void joinRoom(String roomID) throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException, InterruptedException {
         // If a user is already in a room, remove them from the old room
         leaveCurRoom();
 
@@ -321,43 +325,69 @@ public class ServerThread extends Thread {
 
         // Broadcast all usernames and keys in the room to present users
         msgRoom(roomID, ":UPDATE:" + newRoom.getUsernames()); 
-        msgRoom(roomID, newRoom.getUserKeys());
+        //msgRoom(roomID, newRoom.getUserKeys());
+        msgRoom(roomID, newRoom.getUserKeyRingObject());
     }
 
     /**
      * Remove user from their current room and inform all users in that room of the
      * event
      */
-    public void leaveCurRoom() {
+    public void leaveCurRoom() throws InterruptedException {
         if (!(curRoomID == null)) {
             Room room = server.getRoom(curRoomID);
             room.removeUser(this);
             msgRoom(curRoomID, ":UPDATE:" + room.getUsernames());
+            msgRoom(curRoomID, room.getUserKeyRingObject());
         }
     }
 
     /**
      * Broadcast a message to all users in a room
      */
-    public void msgRoom(String roomID, String msg) {
+    public void msgRoom(String roomID, String msg) throws InterruptedException {
         server.getRoom(roomID).broadcastMessage(msg);
+    }
+
+    public void msgRoom2(String roomID, String msg){
+        String[] incomingSplit = msg.split("]");
+        String header = incomingSplit[0] + " ";
+        String initialMessage = incomingSplit[1].trim();
+        String[] messageSplit = initialMessage.split(">");
+        ArrayList<String> out = new ArrayList<>();
+        out.add(header);
+        for (int i = 1; i < messageSplit.length; i ++){
+            String[] userSplit = messageSplit[i].split("<");
+            String userName = userSplit[0];
+            String encryptedMessage = userSplit[1];
+            out.add(userName);
+            out.add(encryptedMessage);
+        }
+        server.getRoom(roomID).broadcastMessageArray(out);
     }
 
     /**
      * Broadcast a certificate to all users in a room
      */
+    /**
     public void msgRoom(String roomID, X509Certificate userCertificate){
         server.getRoom(roomID).broadcastMessage(userCertificate);
         System.out.println("Certificate Broadcasted");
     }
+     */
 
     /**
      * Broadcast a keyRing to all users in a room
      */
+    /**
     public void msgRoom(String roomID, ArrayList<X509Certificate> keyRing){
         server.getRoom(roomID).broadcastMessage(keyRing);
     }
-    
+    */
+
+    public void msgRoom(String roomID, ArrayList<KeyRingObject> keyRing){
+        server.getRoom(roomID).broadcastMessage(keyRing);
+    }
     /**
      * Send message to user with specific public key
      */

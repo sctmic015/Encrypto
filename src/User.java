@@ -48,7 +48,7 @@ public class User {
     private X509Certificate userCertificate;
     private X509Certificate serverCertificate;
     public KeyStore keyStore;
-    public ArrayList<X509Certificate> keyRing;
+    public ArrayList<KeyRingObject> keyRing = new ArrayList<>();
 
     /**
      * Constructor to connect user to server
@@ -87,13 +87,63 @@ public class User {
         updateRoomListOfConnectedUsers();
     }
 
+    public ArrayList<String> getConnectedUsers(){
+        return connectedUsers;
+    }
     /**
      * Updates the list of connected users public key certificates
      */
-    public void updateConnectedUsersKeys(ArrayList<X509Certificate> keys) throws KeyStoreException {
-        this.keyRing = keys;
+    public void updateConnectedUsersKeys(ArrayList<KeyRingObject> keys) throws KeyStoreException {
+        keyRing.clear();
+        for (KeyRingObject key : keys) {
+            /* if (authenticate(key)) {
+                inform("Authenticated and added user: " + key.getUsername());
+                keyRing.add(key);
+            } */
+            X509Certificate certToAuthenticate = key.getUserCertificate();
+            try {
+                certToAuthenticate.verify(serverCertificate.getPublicKey());
+                inform("Authenticated and added user: " + key.getUsername());
+                keyRing.add(key);
+            } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+                    | SignatureException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
+    /**
+     * Use the CA's public key to authenticate a connected user's certificate
+     */
+    /* public boolean authenticate(KeyRingObject key) {
+        X509Certificate certToAuthenticate = key.getUserCertificate();
+        String signedCert = key.getSignedCert();
+        String unsignedCertToCheck = "";
+
+        // Use CA's public key to decrypt the signed certificate
+        try {
+            unsignedCertToCheck = PGPUtil.asymmetricEncrypt(serverCertificate.getPublicKey(), null, signedCert, 1);
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | UnsupportedEncodingException
+                | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+        }
+        try {
+            certToAuthenticate.verify(serverCertificate.getPublicKey());
+        } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+                | SignatureException e) {
+            e.printStackTrace();
+        } */
+/* 
+        inform(unsignedCertToCheck);
+        inform(certToAuthenticate.toString()); */
+
+        // Compare certificate results
+       /*  return unsignedCertToCheck.equals(certToAuthenticate.toString());
+    } */
+
+    public ArrayList<KeyRingObject> getKeyRing() {
+        return keyRing;
+    }
 
     /**
      * Set text message
@@ -197,7 +247,7 @@ public class User {
      * For each user connected on the keyRing, encrypt the message and send tell the server to send the encrypted message
      * @throws Exception
      */
-    public synchronized void sendMessage(String messageHeader, String messageContents) throws Exception {
+    /* public synchronized void sendMessage(String messageHeader, String messageContents) throws Exception {
         for (X509Certificate receiverCertificate : keyRing) {
             PublicKey pubKey = receiverCertificate.getPublicKey();
 
@@ -208,13 +258,13 @@ public class User {
 
             setTextMessage(messageHeader + encodedPubKey + ":" + cipherText);
         }
-    }
+    } */
 
     /**
      * Returns the plaintext from a PGP received ciphertext
      * @throws Exception
      */
-    public String getPlainText(String cipherText) throws Exception {
+    /* public String getPlainText(String cipherText) throws Exception {
         // Separate content strings receievd for ciphertext msg and sender pub key
         String msg = "";
         String senderPublicKey = "";
@@ -233,7 +283,7 @@ public class User {
         }
 
         return PGPUtil.receiver(cipherText, senderpubKey, keyPair.getPublic(), keyPair.getPrivate());
-    }
+    } */
 
     /**
      * Hashes and encrypts the password then returns this version in string form
